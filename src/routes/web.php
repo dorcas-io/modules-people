@@ -1,7 +1,11 @@
 <?php
 
-Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middleware' => ['web']], function() {
-    Route::get('sales', 'ModulesPeopleController@index')->name('sales');
+Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middleware' => ['web'], 'prefix' => 'mpe'], function() {
+    Route::get('people-main', 'ModulesPeopleController@main')->name('people-main');
+    Route::get('people-departments', 'ModulesPeopleController@departments')->name('people-departments');
+    Route::delete('people-departments/{id}', 'ModulesPeopleController@departments_delete');
+    Route::post('people-departments', 'ModulesPeopleController@departments_post')->name('people-departments-post');
+    //Route::put('people-departments/{id}', 'ModulesPeopleController@departments_update')->name('people-departments-update');
 });
 
 
@@ -22,6 +26,23 @@ Route::group(['middleware' => ['auth'], 'namespace' => 'Businesses', 'prefix' =>
     Route::get('/teams', 'Teams\Teams@index')->name('business.teams');
     Route::get('/teams/{id}', 'Teams\Team@index')->name('business.teams.single');
     Route::post('/teams/{id}', 'Teams\Team@post');
+});
+
+
+Route::group(['middleware' => ['auth'], 'namespace' => 'Ajax', 'prefix' => 'xhr'], function () {
+    Route::get('/businesses', 'Business\Businesses@search');
+    Route::delete('/business/departments/{id}/employees', 'Business\Department@removeEmployees');
+
+    Route::post('/business/employees', 'Business\Employee@create');
+    Route::delete('/business/employees/{id}', 'Business\Employee@delete');
+    Route::put('/business/employees/{id}', 'Business\Employee@update');
+    Route::delete('/business/employees/{id}/teams', 'Business\Employee@removeTeams');
+
+    Route::post('/business/teams', 'Business\Team@create');
+    Route::delete('/business/teams/{id}', 'Business\Team@delete');
+    Route::put('/business/teams/{id}', 'Business\Team@update');
+    Route::delete('/business/teams/{id}/employees', 'Business\Team@removeEmployees');
+
 });
 
 ?>

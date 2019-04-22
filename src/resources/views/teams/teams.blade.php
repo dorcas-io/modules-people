@@ -10,23 +10,23 @@
 
     <div class="col-md-9 col-xl-9">
 
-        <div class="container" id="listing_departments">
-            <div class="row mt-3" v-show="departments.length > 0">
-                <department-card class="s12 m4" v-for="(department, index) in departments" :key="department.id" :department="department" :index="index"
-                             v-on:edit-department="editDepartment" v-on:delete-department="deleteDepartment"></department-card>
+        <div class="container" id="listing_teams">
+            <div class="row mt-3" v-show="teams.length > 0">
+                <team-card class="s12 m4" v-for="(team, index) in teams" :key="team.id" :team="team" :index="index"
+                             v-on:edit-team="editTeam" v-on:delete-team="deleteTeam"></team-card>
             </div>
-            <div class="col s12" v-if="departments.length === 0">
+            <div class="col s12" v-if="teams.length === 0">
                 @component('layouts.blocks.tabler.empty-fullpage')
                     @slot('title')
-                        No Departments
+                        No Teams
                     @endslot
-                    You can add one or more departments to organise your employees.
+                    You can add one or more teams to organise your projects and workflow.
                     @slot('buttons')
-                        <a href="#" v-on:click.prevent="createDepartment" class="btn btn-primary btn-sm">Add Department</a>
+                        <a href="#" v-on:click.prevent="createTeam" class="btn btn-primary btn-sm">Add Team</a>
                     @endslot
                 @endcomponent
             </div>
-            @include('modules-people::modals.department')
+            @include('modules-people::modals.team')
         </div>
 
     </div>
@@ -38,54 +38,54 @@
 @section('body_js')
     <script type="text/javascript">
         var vm = new Vue({
-            el: '#listing_departments',
+            el: '#listing_teams',
             data: {
-                departments: {!! json_encode(!empty($departments) ? $departments : []) !!},
-                department: {name: '', description: ''},
+                teams: {!! json_encode(!empty($teams) ? $teams : []) !!},
+                team: {name: '', description: ''},
             },
             computed: {
-                showDepartmentId: function () {
-                    return typeof this.department.id !== 'undefined';
+                showTeamId: function () {
+                    return typeof this.team.id !== 'undefined';
                 }
             },
             methods: {
-                createDepartment: function () {
-                    this.department = {name: '', description: ''};
-                    $('#manage-department-modal').modal('show');
+                createTeam: function () {
+                    this.team = {name: '', description: ''};
+                    $('#manage-team-modal').modal('show');
                 },
-                editDepartment: function (index) {
-                    let department = typeof this.departments[index] !== 'undefined' ? this.departments[index] : null;
-                    if (department === null) {
+                editTeam: function (index) {
+                    let team = typeof this.team[index] !== 'undefined' ? this.team[index] : null;
+                    if (team === null) {
                         return;
                     }
-                    this.department = department;
-                    $('#manage-department-modal').modal('show');
+                    this.team = team;
+                    $('#manage-team-modal').modal('show');
                 },
-                deleteDepartment: function (index) {
-                    let departments = typeof this.departments !== 'undefined' ? this.departments : null;
-                    let department = typeof this.departments[index] !== 'undefined' ? this.departments[index] : null;
-                    if (department === null) {
+                deleteTeam: function (index) {
+                    let teams = typeof this.teams !== 'undefined' ? this.teams : null;
+                    let team = typeof this.team[index] !== 'undefined' ? this.team[index] : null;
+                    if (team === null) {
                         return;
                     }
-                    ///department.is_default = department.is_default ? 1 : 0;
-                    this.department = department;
-                    let e_count = typeof department.counts.employees !== 'undefined' ? department.counts.employees : 0;
+                    ///team.is_default = team.is_default ? 1 : 0;
+                    this.team = team;
+                    let e_count = typeof team.counts.employees !== 'undefined' ? team.counts.employees : 0;
                     let context = this;
                     if (e_count<1) {
                         Swal.fire({
                             title: "Are you sure?",
-                            text: "You are about to delete department " + context.department.name,
+                            text: "You are about to delete team " + context.team.name,
                             type: "warning",
                             showCancelButton: true,
                             confirmButtonColor: "#DD6B55",
                             confirmButtonText: "Yes, delete it!",
                             showLoaderOnConfirm: true,
-                            preConfirm: (departments_delete) => {
-                            return axios.delete("/mpe/people-departments/" + context.department.id)
+                            preConfirm: (teams_delete) => {
+                            return axios.delete("/mpe/people-teams/" + context.team.id)
                                 .then(function (response) {
                                     //console.log(response);
-                                    context.departments.splice(index, 1);
-                                    return swal("Deleted!", "The department was successfully deleted.", "success");
+                                    context.teams.splice(index, 1);
+                                    return swal("Deleted!", "The team was successfully deleted.", "success");
                                 })
                                 .catch(function (error) {
                                     var message = '';
@@ -114,7 +114,7 @@
                     } else {
                         Swal.fire({
                             title: "Unable to Delete!",
-                            text: "The department \"" + department.name + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
+                            text: "The team \"" + team.name + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
                             type: "error"
                         })
                     }
@@ -128,8 +128,8 @@
 
             },
             methods: {
-                createDepartment: function () {
-                    vm.createDepartment();
+                createTeam: function () {
+                    vm.createTeam();
                 }
             }
         })

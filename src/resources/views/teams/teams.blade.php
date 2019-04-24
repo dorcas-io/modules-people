@@ -54,7 +54,7 @@
                     $('#manage-team-modal').modal('show');
                 },
                 editTeam: function (index) {
-                    let team = typeof this.team[index] !== 'undefined' ? this.team[index] : null;
+                    let team = typeof this.teams[index] !== 'undefined' ? this.teams[index] : null;
                     if (team === null) {
                         return;
                     }
@@ -63,7 +63,7 @@
                 },
                 deleteTeam: function (index) {
                     let teams = typeof this.teams !== 'undefined' ? this.teams : null;
-                    let team = typeof this.team[index] !== 'undefined' ? this.team[index] : null;
+                    let team = typeof this.teams[index] !== 'undefined' ? this.teams[index] : null;
                     if (team === null) {
                         return;
                     }

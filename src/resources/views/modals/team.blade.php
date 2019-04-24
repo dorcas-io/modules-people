@@ -6,7 +6,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      	<form action="{{ route('people-teams-post') }}" id="form-customers-team-post" method="post">
+      	<form action="{{ route('people-teams-post') }}" id="form-people-teams-post" method="post">
           {{ csrf_field() }}
           <fieldset class="form-fieldset">
             <div class="form-group">
@@ -23,7 +23,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" name="save_team" form="form-customers-team-post" class="btn btn-primary">@{{ typeof team.id !== 'undefined' ? 'Update Team' : 'Create Team' }}</button>
+        <button type="submit" name="save_team" form="form-people-teams-post" class="btn btn-primary">@{{ typeof team.id !== 'undefined' ? 'Update Team' : 'Create Team' }}</button>
       </div>
     </div>
   </div>

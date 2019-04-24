@@ -6,7 +6,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      	<form action="{{ route('people-departments-post') }}" id="form-customers-department-post" method="post">
+      	<form action="{{ route('people-departments-post') }}" id="form-people-department-post" method="post">
           {{ csrf_field() }}
           <fieldset class="form-fieldset">
             <div class="form-group">
@@ -23,7 +23,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" name="save_department" form="form-customers-department-post" class="btn btn-primary">@{{ typeof department.id !== 'undefined' ? 'Update Department' : 'Create Department' }}</button>
+        <button type="submit" name="save_department" form="form-people-department-post" class="btn btn-primary">@{{ typeof department.id !== 'undefined' ? 'Update Department' : 'Create Department' }}</button>
       </div>
     </div>
   </div>

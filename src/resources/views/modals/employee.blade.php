@@ -1,4 +1,4 @@
-<div class="modal fade" id="edit-employee-modal" tabindex="-1" role="dialog" aria-labelledby="manage-employee-modalLabel" aria-hidden="true">
+<div class="modal fade" id="manage-employee-modal" tabindex="-1" role="dialog" aria-labelledby="manage-employee-modalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -8,7 +8,7 @@
       <div class="modal-body">
 
 
-    <form id="form-employee-post" action="" method="post" v-on:submit.prevent="create">
+    <form id="form-employee-post" action="" method="post" v-on:submit.prevent="updateEmployee">
         {{ csrf_field() }}
         <div class="row">
             <div class="col-md-12">
@@ -45,7 +45,7 @@
                         <label class="form-label" for="gender" @if ($errors->has('gender')) data-error="{{ $errors->first('gender') }}" @endif>Gender</label>
                     </div>
                     <div class="col-md-6 form-group">
-                        <input class="form-control" id="salary_amount" type="number" name="salary_amount" min="0" v-model="employee.salary_amount" required class="validate {{ $errors->has('salary_amount') ? ' invalid' : '' }}">
+                        <input class="form-control" id="salary_amount" type="number" name="salary_amount" min="0" v-model="employee.salary.raw" required class="validate {{ $errors->has('salary_amount') ? ' invalid' : '' }}">
                         <label class="form-label" for="salary_amount" @if ($errors->has('salary_amount')) data-error="{{ $errors->first('salary_amount') }}" @endif>Salary</label>
                     </div>
                 </div>
@@ -59,30 +59,6 @@
                         <input class="form-control" v-model="employee.job_title" name="job_title" type="text" class="validate {{ $errors->has('job_title') ? ' invalid' : '' }}" maxlength="80" id="job_title">
                         <label class="form-label" for="job_title" @if ($errors->has('job_title')) data-error="{{ $errors->first('job_title') }}" @endif>Job Title</label>
                     </div>
-                </div>
-                <div class="row">
-                    @if (!empty($departments))
-                    <div class="col-md-6 form-group">
-                        <select class="form-control" name="department" id="department" v-model="employee.department">
-                            <option value="" disabled>Select Department</option>
-                            @foreach ($departments as $department)
-                                <option value="{{ $department->id }}">{{ $department->name }}</option>
-                            @endforeach
-                        </select>
-                        <label class="form-label" for="department" @if ($errors->has('department')) data-error="{{ $errors->first('department') }}" @endif>Department</label>
-                    </div>
-                    @endif
-                    @if (!empty($locations))
-                    <div class="col-md-6 form-group">
-                        <select name="location" id="location" class="form-control" v-model="employee.location">
-                            <option value="" disabled>Select Location</option>
-                            @foreach ($locations as $location)
-                                <option value="{{ $location->id }}">{{ $location->name }}</option>
-                            @endforeach
-                        </select>
-                        <label class="form-label" for="location" @if ($errors->has('location')) data-error="{{ $errors->first('location') }}" @endif>Location</label>
-                    </div>
-                    @endif
                 </div>
             </fieldset>
             </div>

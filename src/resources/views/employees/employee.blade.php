@@ -18,9 +18,10 @@
                 <h3 class="mb-3">@{{ fullName }}</h3>
                 <p class="mb-4">
                     <div class="list-group text-left">
-                        <p class="list-group-item"><i class="fa fa-desktop"></i> @{{ employee.email }}</p>
-                        <p class="list-group-item"><i class="fa fa-phone" aria-hidden="true"></i> @{{ employee.phone }}</p>
+                        <p class="list-group-item"><i class="fe fe-desktop"></i> @{{ employee.email }}</p>
+                        <p class="list-group-item"><i class="fe fe-phone" aria-hidden="true"></i> @{{ employee.phone }}</p>
                         <p class="list-group-item"><i class="fa fa-calendar-plus-o" aria-hidden="true"></i> @{{ addedDate }}</p>
+                        <p class="list-group-item" v-if="typeof employee.department !== 'undefined'"><i class="fe fe-grid" aria-hidden="true"></i> @{{ employee.department.data.name }}</p>
                     </div>
                 </p>
                 <button v-on:click.prevent="editEmployee" class="btn btn-outline-primary btn-sm text-center">
@@ -36,7 +37,7 @@
         <div class="card">
             <div class="card-status bg-blue"></div>
             <div class="card-header">
-                <h3 class="card-title">Groups</h3>
+                <h3 class="card-title">Associations</h3>
             </div>
             <div class="card-body">
                 Manage <strong>departments</strong> &amp; <strong>teams</strong> that @{{ employee.firstname }} belongs to below:
@@ -59,8 +60,8 @@
                                     <div class="col-md-6 form-group">
                                         <select id="employee-departments" v-model="addToDepartment.employee" class="form-control" required>
                                             <option value="" disabled>Select a Department</option>
-                                            <option v-for="department in availableDepartments" v-if="addedDepartments.indexOf(department.id) === -1"
-                                            :key="department.id" :value="department.id">@{{ department.name }}</option>
+                                            <option v-for="department in departments" v-if="addedDepartments.indexOf(department.id) === -1"
+                                            :key="department.id" :value="department.id">@{{ department.name }}</option><!--availableDepartments-->
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -71,10 +72,10 @@
                             </fieldset>
                         </form>
 
-                        <div class="col-md-6" v-if="typeof employee.department !== 'undefined'">
+                        <div v-if="typeof employee.department !== 'undefined'">
                             <div class="tag" :key="employee.department.data.id">
                               @{{ employee.department.data.name }}
-                              <a href="#" class="tag-addon tag-danger"><i class="fe fe-trash" data-ignore-click="true" v-bind:data-index="employee.department.data.id" v-on:click.prevent="removeDepartment($event)"></i></a>
+                              <a href="#" class="tag-addon tag-danger"><i class="fe fe-trash" data-ignore-click="true" v-bind:data-index="employee.department.data.id" v-bind:data-name="employee.department.data.name" v-on:click.prevent="removeDepartment($event)"></i></a>
                             </div>
                         </div>
                     </div>
@@ -98,10 +99,10 @@
                             </fieldset>
                         </form>
 
-                        <div class="col-md-6" v-if="typeof employee.teams !== 'undefined' && employee.teams.data.length > 0">
+                        <div v-if="typeof employee.teams !== 'undefined' && employee.teams.data.length > 0">
                             <div class="tag" v-for="(team, index) in employee.teams.data" :key="team.id">
                               @{{ team.name }}
-                              <a href="#" class="tag-addon tag-danger"><i class="fe fe-trash" data-ignore-click="true" v-bind:data-index="index"
+                              <a href="#" class="tag-addon tag-danger"><i class="fe fe-trash" data-ignore-click="true" v-bind:data-name="team.name" v-bind:data-index="index" v-bind:data-id="team.id"
                                 v-on:click.prevent="removeTeam($event)"></i></a>
                             </div>
                         </div>
@@ -155,41 +156,49 @@
                     return string.title_case();
                 },
                 editEmployee: function (index) {
-                    $('#edit-employee-modal').modal('show');
+                    $('#manage-employee-modal').modal('show');
                 },
                 postedAtDate: function (dateString) {
                     return moment(dateString).format('DD MMM, YYYY HH:mm')
                 },
-                updateCustomer: function () {
+                updateEmployee: function () {
                     var context = this;
                     Swal.fire({
-                        title: "Update Customer Profile?",
-                        text: "You are about to update the details for this customer.",
+                        title: "Update Employee Profile?",
+                        text: "You are about to update the details for this employee.",
                         type: "info",
                         showCancelButton: true,
                         confirmButtonColor: "#1565C0",
                         confirmButtonText: "Yes, continue!",
-                        closeOnConfirm: false,
                         showLoaderOnConfirm: true,
                         preConfirm: (update) => {
-                        return axios.put("/mcu/customers-customers/" + context.customer.id, {
-                            firstname: context.customer.firstname,
-                            lastname: context.customer.lastname,
-                            email: context.customer.email,
-                            phone: context.customer.phone
+                        return axios.put("/mpe/people-employees/" + context.employee.id, {
+                            firstname: context.employee.firstname,
+                            lastname: context.employee.lastname,
+                            email: context.employee.email,
+                            phone: context.employee.phone,
+                            gender: context.employee.gender,
+                            staff_code: context.employee.staff_code,
+                            job_title: context.employee.job_title,
+                            salary_amount: context.employee.salary.raw,
+                            salary_period: "month"
                         })
                            .then(function (response) {
-                                console.log(response);
+                                //console.log(response);
                                 //$('#edit-customer-modal').modal('hide');
+                                $('#manage-employee-modal').modal('hide');
                                 return swal("Saved!", "The changes were successfully saved!", "success");
                             })
                             .catch(function (error) {
                                 var message = '';
                                 if (error.response) {
+                                    console.log(error.response);
                                     // The request was made and the server responded with a status code
                                     // that falls out of the range of 2xx
-                                    var e = error.response.data.errors[0];
-                                    message = e.title;
+                                    /*var e = error.response.data.errors[0];
+                                    message = e.title;*/
+                                    var e = error.response;
+                                    message = e.data.message;
                                 } else if (error.request) {
                                     // The request was made but no response was received
                                     // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -205,54 +214,6 @@
                         allowOutsideClick: () => !Swal.isLoading()                        
                     })
                 },
-                removeGroup: function (e) {
-                    let attrs = app.utilities.getElementAttributes(e.target);
-                    console.log(attrs);
-                    let index = attrs['data-index'] || null;
-                    let group = typeof this.customer.groups.data[index] !== 'undefined' ? this.customer.groups.data[index] : null;
-                    if (group === null) {
-                        return false;
-                    }
-                    if (this.processing) {
-                        //Materialize.toast('Please wait till the current activity completes...', 4000);
-                        return;
-                    }
-                    this.processing = true;
-                    let context = this;
-                    axios.delete("/mcu/customers-groups/" + group.id, {
-                        data: {customers: [context.customer.id]}
-                    }).then(function (response) {
-                        //console.log(response);
-                        //console.log(index);
-                        if (index !== null) {
-                            context.customer.groups.data.splice(index, 1);
-                            context.addedGroups = context.customer.groups.data.map(function (e) { return e.id; });
-                        }
-                        context.processing = false;
-                        //Materialize.toast('Group '+group.name+' removed.', 2000);
-                        return swal("Deleted!", "Group "+group.name+" was successfully deleted", "success");
-                    })
-                        .catch(function (error) {
-                            var message = '';
-                            console.log(error);
-                            if (error.response) {
-                                // The request was made and the server responded with a status code
-                                // that falls out of the range of 2xx
-                                var e = error.response.data.errors[0];
-                                message = e.title;
-                            } else if (error.request) {
-                                // The request was made but no response was received
-                                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                                // http.ClientRequest in node.js
-                                message = 'The request was made but no response was received';
-                            } else {
-                                // Something happened in setting up the request that triggered an Error
-                                message = error.message;
-                            }
-                            //context.saving = false;
-                            return swal("Delete Failed", message, "warning");
-                        });
-                },
                 addEmployeeToTeam: function () {
                     let context = this;
                     let tm = typeof context.addToTeam.employee !== 'undefined' ? context.addToTeam.employee : null;
@@ -262,6 +223,7 @@
                     let tm_index = context.teams.findIndex(x => x.id === tm );
                     team = typeof context.teams[tm_index] !== 'undefined' ? context.teams[tm_index] : [];
                     this.processing =  true;
+                    //console.log(context.addToTeam.employee);
                     Swal.fire({
                         title: "Add Employee to Team?",
                         text: "Are you sure you want to add "+context.employee.firstname+" "+context.employee.lastname+" to "+team.name+"?",
@@ -273,7 +235,7 @@
                         preConfirm: (add_employee_team) => {
                             this.processing =  true;
                             return axios.post("/mpe/people-teams/" + context.addToTeam.employee + "/employees", {
-                                teams: [context.employee.id]
+                                employees: [context.employee.id]
                             }).then(function (response) {
                                 console.log(response);
                                 context.processing = false;
@@ -287,8 +249,10 @@
                                     if (error.response) {
                                         // The request was made and the server responded with a status code
                                         // that falls out of the range of 2xx
-                                        var e = error.response.data.errors[0];
-                                        message = e.title;
+                                        //var e = error.response.data.errors[0];
+                                        //message = e.title;
+                                        var e = error.response;
+                                        message = e.data.message;
                                     } else if (error.request) {
                                         // The request was made but no response was received
                                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -301,6 +265,74 @@
                                     context.savingNote = false;
                                     //Materialize.toast('Error: '+message, 4000);
                                     swal("Add Failed:", message, "warning");
+                                });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading() 
+                    });
+                },
+                removeTeam: function (e) {
+                    let context = this;
+                    let attrs = app.utilities.getElementAttributes(e.target);
+                    //console.log(attrs);
+                    let index = attrs['data-index'] || null;
+                    let team_name = attrs['data-name'] || null;
+                    let team_id = attrs['data-id'] || null;
+                    
+                    let tm = typeof context.addToTeam.employee !== 'undefined' ? context.addToTeam.employee : null;
+                    if (tm === null) {
+                        return false;
+                    }
+                    let tm_index = context.teams.findIndex(x => x.id === tm );
+                    team = typeof context.teams[tm_index] !== 'undefined' ? context.teams[tm_index] : [];
+                    if (this.processing) {
+                        //Materialize.toast('Please wait till the current activity completes...', 4000);
+                        return;
+                    }
+                    this.processing = true;
+                    Swal.fire({
+                        title: "Remove Employee?",
+                        text: "Are you sure you want to remove "+context.employee.firstname+" "+context.employee.lastname+" from "+team_name+"?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, remove!",
+                        showLoaderOnConfirm: true,
+                        preConfirm: (delete_employee_team) => {
+                            this.processing = true;
+                            return axios.delete("/mpe/people-teams/" + team_id + "/employees", {
+                                data: {employees: [context.employee.id]}
+                            }).then(function (response) {
+                                //console.log(response);
+                                //console.log(index);
+                                if (index !== null) {
+                                    context.employee.teams.data.splice(index, 1);
+                                    context.addedTeams = context.employee.teams.data.map(function (e) { return e.id; });
+                                }
+                                context.processing = false;
+                                //Materialize.toast('Group '+group.name+' removed.', 2000);
+                                return swal("Deleted!", "Employee was successfully deleted from "+team_name, "success");
+                            })
+                                .catch(function (error) {
+                                    var message = '';
+                                    console.log(error);
+                                    if (error.response) {
+                                        // The request was made and the server responded with a status code
+                                        // that falls out of the range of 2xx
+                                            /*var e = error.response.data.errors[0];
+                                            message = e.title;*/
+                                            var e = error.response;
+                                            message = e.data.message;
+                                    } else if (error.request) {
+                                        // The request was made but no response was received
+                                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                                        // http.ClientRequest in node.js
+                                        message = 'The request was made but no response was received';
+                                    } else {
+                                        // Something happened in setting up the request that triggered an Error
+                                        message = error.message;
+                                    }
+                                    //context.saving = false;
+                                    return swal("Delete Failed", message, "warning");
                                 });
                         },
                         allowOutsideClick: () => !Swal.isLoading() 
@@ -359,6 +391,73 @@
                         allowOutsideClick: () => !Swal.isLoading() 
                     });
                 },
+                removeDepartment: function (e) {
+                    let attrs = app.utilities.getElementAttributes(e.target);
+                    //console.log(attrs);
+                    let index = attrs['data-index'] || null; //its the id not really an index
+                    let dept_name = attrs['data-name'] || null;
+                    //let group = typeof this.employee.department.data[index] !== 'undefined' ? this.customer.groups.data[index] : null;
+                    if (index === null) {
+                        return false;
+                    }
+                    if (this.processing) {
+                        //Materialize.toast('Please wait till the current activity completes...', 4000);
+                        return;
+                    }
+                    this.processing = true;
+                    let context = this;
+                    Swal.fire({
+                        title: "Remove Employee?",
+                        text: "Are you sure you want to remove "+context.employee.firstname+" "+context.employee.lastname+" from "+dept_name+"?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, remove!",
+                        showLoaderOnConfirm: true,
+                        preConfirm: (delete_employee_department) => {
+                            this.processing = true;
+                            return axios.delete("/mpe/people-departments/" + index + "/employees", {
+                                data: {employees: [context.employee.id]}
+                            }).then(function (response) {
+                                //console.log(response);
+                                //console.log(index);
+                                if (index !== null) {
+                                    //context.customer.groups.data.splice(index, 1);
+                                    //context.addedGroups = context.customer.groups.data.map(function (e) { return e.id; });
+                                    //context.department.employees.data.splice(index, 1);
+                                    //context.addedEmployees = context.department.employees.data.map(function (e) { return e.id; });
+                                }
+                                context.processing = false;
+                                //Materialize.toast('Group '+group.name+' removed.', 2000);
+                                window.location = '{{ url()->current() }}'
+                                return swal("Deleted!", "Employee was successfully removed from "+dept_name, "success");
+                            })
+                                .catch(function (error) {
+                                    var message = '';
+                                    console.log(error);
+                                    if (error.response) {
+                                        // The request was made and the server responded with a status code
+                                        // that falls out of the range of 2xx
+                                            /*var e = error.response.data.errors[0];
+                                            message = e.title;*/
+                                            var e = error.response;
+                                            message = e.data.message;
+                                    } else if (error.request) {
+                                        // The request was made but no response was received
+                                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                                        // http.ClientRequest in node.js
+                                        message = 'The request was made but no response was received';
+                                    } else {
+                                        // Something happened in setting up the request that triggered an Error
+                                        message = error.message;
+                                    }
+                                    //context.saving = false;
+                                    return swal("Delete Failed", message, "warning");
+                                });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading() 
+                    });
+                },
             },
             mounted: function () {
                 var context = this;
@@ -372,6 +471,8 @@
                     created_at: typeof this.employee.department !== 'undefined' ? this.employee.department.data.created_at : "",
                     counts: typeof this.employee.department !== 'undefined' ? this.employee.department.data.counts : ""
                 }];
+                //console.log(this.addedDepartments);
+                //console.log(this.employee);
             }
         });
     </script>

@@ -2,6 +2,7 @@
 
 Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middleware' => ['web'], 'prefix' => 'mpe'], function() {
     Route::get('people-main', 'ModulesPeopleController@main')->name('people-main');
+
     Route::get('people-departments', 'ModulesPeopleController@departments')->name('people-departments');
     Route::delete('people-departments/{id}', 'ModulesPeopleController@departments_delete');
     Route::post('people-departments', 'ModulesPeopleController@departments_post')->name('people-departments-post');
@@ -9,18 +10,25 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::get('/people-departments/{id}', 'ModulesPeopleController@departments_view')->name('people-departments-view');
     Route::post('/people-departments/{id}/employees', 'ModulesPeopleController@departments_employees_add');
     Route::delete('/people-departments/{id}/employees', 'ModulesPeopleController@departments_employees_delete');
+
     Route::get('/people-employees', 'ModulesPeopleController@employees')->name('people-employees');
     Route::delete('/people-employees/{id}', 'ModulesPeopleController@employees_delete');
     Route::get('/people-employees-new', 'ModulesPeopleController@employees_new')->name('people-employees-new');
     Route::post('/people-employees-new', 'ModulesPeopleController@employees_create');
     Route::get('/people-employees/{id}', 'ModulesPeopleController@employees_view')->name('people-employees-view');
-    Route::post('/people-employees/{id}', 'Employees\Employee@post');
+    Route::put('/people-employees/{id}', 'ModulesPeopleController@employees_update');
+    //Route::post('/people-employees/{id}', 'Employees\Employee@post');
+
     Route::get('/people-teams', 'ModulesPeopleController@teams')->name('people-teams');
     Route::post('people-teams', 'ModulesPeopleController@teams_post')->name('people-teams-post');
+    Route::delete('people-teams/{id}', 'ModulesPeopleController@teams_delete');
+    Route::get('people-teams/{id}', 'ModulesPeopleController@teams_view')->name('people-teams-view');
+    Route::post('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_add');
+    Route::delete('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_delete');
 });
 
 
-Route::group(['middleware' => ['auth'], 'namespace' => 'Businesses', 'prefix' => 'apps/people'], function () {
+Route::group(['middleware' => ['auth'], 'namespace' => 'Businesses', 'prefix' => 'xapps/people'], function () {
     Route::get('/', 'Business@index')->name('business');
 
     Route::get('/departments', 'Departments\Departments@index')->name('business.departments');
@@ -29,12 +37,12 @@ Route::group(['middleware' => ['auth'], 'namespace' => 'Businesses', 'prefix' =>
     
 
     
-    Route::get('/teams/{id}', 'Teams\Team@index')->name('business.teams.single');
+    
     Route::post('/teams/{id}', 'Teams\Team@post');
 });
 
 
-Route::group(['middleware' => ['auth'], 'namespace' => 'Ajax', 'prefix' => 'xhr'], function () {
+Route::group(['middleware' => ['auth'], 'namespace' => 'Ajax', 'prefix' => 'xxhr'], function () {
     Route::get('/businesses', 'Business\Businesses@search');
 
     //Route::post('/business/employees', 'Business\Employee@create');

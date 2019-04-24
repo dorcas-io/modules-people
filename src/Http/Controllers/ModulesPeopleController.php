@@ -10,6 +10,7 @@ use App\Http\Controllers\HomeController;
 use Hostville\Dorcas\Sdk;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use App\Exceptions\DeletingFailedException;
 use App\Exceptions\RecordNotFoundException;
 
 class ModulesPeopleController extends Controller {
@@ -180,7 +181,7 @@ class ModulesPeopleController extends Controller {
         $this->data['page']['title'] .= ' &rsaquo; Departments &rsaquo; '.$department->name;
         $this->data['header']['title'] = 'Departments &rsaquo; '.$department->name;
         $this->data['selectedSubMenu'] = 'people-departments';
-        $this->data['submenuAction'] = '<a href="#add-employees" class="btn btn-primary btn-block">Add Employee</a>';
+        //$this->data['submenuAction'] = '<a href="#add-employees" class="btn btn-primary btn-block">Add Employee</a>';
 
         return view('modules-people::departments.department', $this->data);
 
@@ -490,11 +491,6 @@ class ModulesPeopleController extends Controller {
     public function employees_view(Request $request, Sdk $sdk, string $id)
     {
 
-        $this->data['page']['title'] .= ' &rsaquo; Employee';
-        $this->data['header']['title'] = 'Employee';
-        $this->data['selectedSubMenu'] = 'people-employees';
-        //$this->data['submenuAction'] = '<a href="'.route("people-employees-new").'" class="btn btn-primary btn-block">Add Customer</a>';
-
         $this->setViewUiResponse($request);
         $this->data['departments'] = $this->getDepartments($sdk);
         $this->data['teams'] = $this->getTeams($sdk);
@@ -515,7 +511,11 @@ class ModulesPeopleController extends Controller {
             });
             # add the UI components
         }
-        //return view('business.employees.employee', $this->data);
+
+        $this->data['page']['title'] .= ' &rsaquo; Employee &rsaquo; '.$employee->firstname.' '.$employee->lastname;
+        $this->data['header']['title'] = 'Employee &rsaquo; '.$employee->firstname.' '.$employee->lastname;
+        $this->data['selectedSubMenu'] = 'people-employees';
+        //$this->data['submenuAction'] = '<a href="'.route("people-employees-new").'" class="btn btn-primary btn-block">Add Customer</a>';
         return view('modules-people::employees.employee', $this->data);
     }
     
@@ -640,7 +640,7 @@ class ModulesPeopleController extends Controller {
                 throw new \RuntimeException('Failed while '. (empty($teamId) ? 'adding' : 'updating') .' the team. '.$message);
             }
             $company = $this->getCompany();
-            Cache::forget('business.departments.'.$company->id);
+            Cache::forget('business.teams.'.$company->id);
             $response = (tabler_ui_html_response(['Successfully '. (empty($teamId) ? 'added' : 'updated the') .' team.']))->setType(UiResponse::TYPE_SUCCESS);
         } catch (\Exception $e) {
             $response = (tabler_ui_html_response([$e->getMessage()]))->setType(UiResponse::TYPE_ERROR);
@@ -678,26 +678,43 @@ class ModulesPeopleController extends Controller {
      * @param Sdk     $sdk
      * @param string  $id
      *
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    /*public function update(Request $request, Sdk $sdk, string $id)
+    public function teams_view(Request $request, Sdk $sdk, string $id)
     {
-        $model = $sdk->createTeamResource($id);
-        $response = $model->addBodyParam('name', $request->input('name', ''))
-                            ->addBodyParam('description', $request->input('description', ''))
-                            ->send('put');
-        # make the request
-        if (!$response->isSuccessful()) {
-            // do something here
-            $message = $response->getErrors()[0]['title'] ?? 'Failed while updating the team.';
-            throw new RecordNotFoundException($message);
+
+        $this->setViewUiResponse($request);
+        $query = $sdk->createTeamResource($id)
+                        ->addQueryArgument('include', 'employees:limit(10000|0)')
+                        ->send('get');
+        # try to get the team information
+        $this->data['team'] = $team = $query->getData(true);
+        # get the information
+        $employees = $this->getEmployees($sdk);
+        $this->data['noEmployeesMessage'] = !empty($employees) && $employees->count() > 0 ?
+            'All your employees are already part of this team.' : 'You can start by adding one or more employees to your records.';
+        # a message to display when the employees list is empty after filtering
+        if (!empty($employees) && $employees->count() > 0) {
+            $employees = $employees->filter(function ($employee) use ($team) {
+                if (empty($employee->teams['data'])) {
+                    return true;
+                }
+                $teams = $employee->teams['data'];
+                return collect($teams)->where('id', $team->id)->count() === 0;
+            });
         }
-        $company = $request->user()->company(true, true);
-        Cache::forget('business.teams.'.$company->id);
-        $this->data = $response->getData();
-        return response()->json($this->data);
-    }*/
+
+        $this->data['employees'] = $employees;
+
+        $this->data['page']['title'] .= ' &rsaquo; Teams &rsaquo; '.$team->name;
+        $this->data['header']['title'] = 'Teams &rsaquo; '.$team->name;
+        $this->data['selectedSubMenu'] = 'people-teams';
+        //$this->data['submenuAction'] = '<a href="#" v-on:click.prevent="createTeam" class="btn btn-primary btn-block">Add Team</a>';
+
+        return view('modules-people::teams.team', $this->data);
+
+    }
+
     
     /**
      * @param Request $request
@@ -727,6 +744,37 @@ class ModulesPeopleController extends Controller {
         Cache::forget('business.teams.'.$company->id);
         $this->data = $response->getData();
         return response()->json($this->data);
+    }
+
+
+    /**
+     * @param Request $request
+     * @param Sdk     $sdk
+     * @param string  $id
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function teams_employees_add(Request $request, Sdk $sdk, string $id)
+    {
+        /*$this->validate($request, [
+            'employees' => 'required_with:add_employees|array',
+            'employees.*' => 'string'
+        ]);
+        */
+
+        $model = $sdk->createTeamResource($id)->addBodyParam('employees', $request->employees);
+        $response = $model->send('post', ['employees']);
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+            throw new \RuntimeException($message);
+        }
+        Cache::forget('business.teams.'.$company->id);
+        $this->data = $response->getData();
+        return response()->json($this->data);
+
+
     }
 
 

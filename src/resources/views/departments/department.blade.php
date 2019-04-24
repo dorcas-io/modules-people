@@ -15,7 +15,7 @@
             <div class="card-header" v-bind:style="{ 'background-image': 'url(' + backgroundImage + ')' }"></div>
             <div class="card-body text-center">
                 <!-- <img class="card-profile-img" v-bind:src="photo"> -->
-                <h3 class="mb-3">@{{ department.name }}</h3>
+                <h3 class="mb-3" style="color: #467fcf;">@{{ department.name }}</h3>
                 <h4 class="mb-4">@{{ department.description }}</h4>
                 <!-- <p class="mb-4">
                     <div class="list-group text-left">
@@ -68,7 +68,6 @@
         </div>
         
     </div>
-    @include('modules-people::modals.add-employees')
 </div>
 @endsection
 
@@ -83,9 +82,6 @@
                 defaultPhoto: "{{ cdn('images/avatar/avatar-9.png') }}",
                 backgroundImage: "{{ cdn('images/gallery/2.png') }}",
                 employees: {!! json_encode($employees) !!},
-                current_note: '',
-                savingNote: false,
-                notes: [],
                 deleting: false,
                 processing: false,
                 addedEmployees: [],
@@ -150,7 +146,7 @@
                         confirmButtonColor: "#DD6B55",
                         confirmButtonText: "Yes, remove!",
                         showLoaderOnConfirm: true,
-                        preConfirm: (delete_employee_group) => {
+                        preConfirm: (delete_employee_department) => {
                         	this.processing = true;
 		                    return axios.delete("/mpe/people-departments/" + context.department.id + "/employees", {
 		                        data: {employees: [employee.id]}
@@ -189,11 +185,14 @@
                 },
                 addEmployeeToDepartment: function () {
                     let context = this;
-                    let employee = typeof context.addToDepartment.employee !== 'undefined' ? context.addToDepartment.employee : null;
-                    if (employee === null) {
+                    let empl = typeof context.addToDepartment.employee !== 'undefined' ? context.addToDepartment.employee : null;
+                    if (empl === null) {
                         return false;
                     }
                     //console.log(employee);
+                    console.log(empl);
+                    let empl_index = context.employees.findIndex(x => x.id === empl );
+                    employee = typeof context.employees[empl_index] !== 'undefined' ? context.employees[empl_index] : [];
                     Swal.fire({
                         title: "Add Employee?",
                         text: "Are you sure you want to add "+employee.firstname+" "+employee.lastname+" to "+context.department.name+"?",

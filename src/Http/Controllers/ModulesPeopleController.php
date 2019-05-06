@@ -42,6 +42,7 @@ class ModulesPeopleController extends Controller {
 
         $this->setViewUiResponse($request);
         $this->data['departments'] = $this->getDepartments($sdk);
+        //dd($this->data['departments']);
         return view('modules-people::departments.departments', $this->data);
     }
 

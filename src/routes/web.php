@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middleware' => ['web'], 'prefix' => 'mpe'], function() {
+Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middleware' => ['auth','web'], 'prefix' => 'mpe'], function() {
     Route::get('people-main', 'ModulesPeopleController@main')->name('people-main');
 
     Route::get('people-departments', 'ModulesPeopleController@departments')->name('people-departments');

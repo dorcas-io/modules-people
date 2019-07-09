@@ -1,5 +1,10 @@
 <?php
 return [
+    'people-employees-new' => [
+        'title' => 'Add Employee',
+        'route' => 'people-employees-new',
+        'icon' => 'fa fa-id-card',
+    ],
     'people-employees' => [
         'title' => 'Employees',
         'route' => 'people-employees',

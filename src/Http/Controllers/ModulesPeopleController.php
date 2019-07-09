@@ -351,7 +351,7 @@ class ModulesPeopleController extends Controller {
 
         $this->data['page']['title'] .= ' &rsaquo; New Employee';
         $this->data['header']['title'] = 'New Employee';
-        $this->data['selectedSubMenu'] = 'people-employees';
+        $this->data['selectedSubMenu'] = 'people-employees-new';
         //$this->data['submenuAction'] = '<a href="'.route("people-employees-new").'" class="btn btn-primary btn-block">Add Customer</a>';
 
         $this->setViewUiResponse($request);

@@ -19,15 +19,5 @@ return [
     	'title' => 'Teams',
     	'route' => 'people-teams',
         'icon' => 'fe fe-flag',
-    ],
-    'people-leave' => [
-        'title' => 'Leave',
-        'route' => 'people-leave',
-        'icon' => 'fe fe-log-out',
-    ],
-    'people-performance' => [
-        'title' => 'Performance',
-        'route' => 'people-performance',
-        'icon' => 'fe fe-trending-up',
     ]
 ];

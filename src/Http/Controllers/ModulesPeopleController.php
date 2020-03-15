@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Exceptions\DeletingFailedException;
 use App\Exceptions\RecordNotFoundException;
+use League\Csv\Reader;
 
 class ModulesPeopleController extends Controller {
 
@@ -306,7 +307,17 @@ class ModulesPeopleController extends Controller {
         $this->data['page']['title'] .= ' &rsaquo; Employees';
         $this->data['header']['title'] = 'Employees';
         $this->data['selectedSubMenu'] = 'people-employees';
-        $this->data['submenuAction'] = '<a href="'.route("people-employees-new").'"class="btn btn-primary btn-block">Add Employee</a>';
+        //$this->data['submenuAction'] = '<a  class="btn btn-primary btn-block">Add Employee</a>';
+
+        $this->data['submenuAction'] = '
+            <div class="dropdown"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Employee Actions</button>
+                <div class="dropdown-menu">
+                <a href="'.route("people-employees-new").'" class="dropdown-item">Add Employee</a>
+                <a href="#" data-toggle="modal" data-target="#employees-import-modal" class="dropdown-item">Import Employees From CSV</a>
+                </div>
+            </div>
+        ';
+
 
         $this->setViewUiResponse($request);
         $this->data['employees'] = $this->getEmployees($sdk);
@@ -398,6 +409,57 @@ class ModulesPeopleController extends Controller {
         Cache::forget('business.employees.'.$company->id);
         return response()->json($query->getData());
     }
+
+
+    /**
+     * @param Request $request
+     * @param Sdk     $sdk
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function employees_import(Request $request, Sdk $sdk)
+    {
+        $this->validate($request, [
+            'employee_import_file' => 'required_if:action,import_employees|file|max:5120',
+        ]);
+        # validate the request
+        $action = $request->input('action');
+        try {
+            $resource = $sdk->createEmployeeResource();
+            $file = $request->file('employee_import_file');
+            if (empty($file)) {
+                throw new \RuntimeException('You need to upload a CSV containing the entries.');
+            }
+            $csv = Reader::createFromPath($file->getRealPath(), 'r');
+            $csv->setHeaderOffset(0);
+            $records = $csv->getRecords(['firstname', 'lastname', 'email', 'phone', 'salary_amount', 'job_title']);
+            $entries = [];
+            foreach ($records as $record) {
+                $entries[] = $record;
+            }
+            //$resource->addBodyParam('account', $request->input('account'));
+            $resource->addBodyParam('entries', $entries);
+            $response = $resource->send('post', ['bulk']);
+            //dd($response);
+            # send the request
+            if (!$response->isSuccessful()) {
+                # it failed
+                $message = $response->errors[0]['title'] ?? '';
+                throw new \RuntimeException('Failed while adding the employee entries. '.$message);
+            }
+            $company = $request->user()->company(true, true);
+            Cache::forget('business.employees.'.$company->id);
+            $response = (tabler_ui_html_response(['Successfully added new employee entries.']))->setType(UiResponse::TYPE_SUCCESS);
+
+        } catch (\Exception $e) {
+            $response = (tabler_ui_html_response([$e->getMessage()]))->setType(UiResponse::TYPE_ERROR);
+        }
+        $args = $request->query->all();
+        return redirect(url()->current() . '?' . http_build_query($args))->with('UiResponse', $response);
+    }
+
+
 
 
     /**
@@ -517,6 +579,7 @@ class ModulesPeopleController extends Controller {
         $this->data['header']['title'] = 'Employee &rsaquo; '.$employee->firstname.' '.$employee->lastname;
         $this->data['selectedSubMenu'] = 'people-employees';
         //$this->data['submenuAction'] = '<a href="'.route("people-employees-new").'" class="btn btn-primary btn-block">Add Customer</a>';
+        //dd($this->data);
         return view('modules-people::employees.employee', $this->data);
     }
     
@@ -528,7 +591,7 @@ class ModulesPeopleController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function post(Request $request, Sdk $sdk, string $id)
+    public function employees_post(Request $request, Sdk $sdk, string $id)
     {
         $this->validate($request, [
             'email' => 'required_if:action,create_user|email',
@@ -557,7 +620,7 @@ class ModulesPeopleController extends Controller {
                 }
                 $message = ['Successfully created the user account for this employee.'];
                 
-            } else {
+            } elseif ($action === 'update_module_access') {
                 # update address information
                 $configurations = (array) $employee->user['data']['extra_configurations'];
     
@@ -592,9 +655,9 @@ class ModulesPeopleController extends Controller {
                 $message = ['Successfully updated module access for this '.$employee->firstname];
                 
             }
-            $response = (material_ui_html_response($message))->setType(UiResponse::TYPE_SUCCESS);
+            $response = (tabler_ui_html_response($message))->setType(UiResponse::TYPE_SUCCESS);
         } catch (\Exception $e) {
-            $response = (material_ui_html_response([$e->getMessage()]))->setType(UiResponse::TYPE_ERROR);
+            $response = (tabler_ui_html_response([$e->getMessage()]))->setType(UiResponse::TYPE_ERROR);
         }
         return redirect(url()->current())->with('UiResponse', $response);
     }

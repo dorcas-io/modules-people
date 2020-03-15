@@ -51,7 +51,7 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <input class="form-control" id="salary_amount" type="number" name="salary_amount" min="0" v-model="employee.salary_amount" required class="validate {{ $errors->has('salary_amount') ? ' invalid' : '' }}">
-                            <label class="form-label" for="salary_amount" @if ($errors->has('salary_amount')) data-error="{{ $errors->first('salary_amount') }}" @endif>Salary</label>
+                            <label class="form-label" for="salary_amount" @if ($errors->has('salary_amount')) data-error="{{ $errors->first('salary_amount') }}" @endif>Base Salary</label>
                         </div>
                     </div>
                     <div class="row">

@@ -77,6 +77,7 @@
         </div>
 
     </div>
+    @include('modules-people::modals.employees-import')
 
 </div>
 
@@ -85,6 +86,37 @@
 @section('body_js')
 <script>
     app.currentUser = {!! json_encode($dorcasUser) !!};
+
+    var vmImportModal = new Vue({
+        el: '#employees-import-modal',
+        data: {
+            fileUpload: { message : '', area: '', file: '' },
+        },
+        mounted: function () {
+
+        },
+        computed: {
+
+        },
+        methods: {
+            fileUploadCheck: function(element_id, label_id, message_id, button_id, file_size_max_kb) {
+                this.fileUpload.file = this.$refs[element_id].files[0];
+                //console.log(this.fileUpload.file)
+                $("#"+label_id).html(this.fileUpload.file.name);
+                if (this.fileUpload.file.size > (file_size_max_kb * 100)) {
+                    $("#"+button_id).attr('disabled', true );
+                    $("#"+message_id).html('Selected file size > '+file_size_max_kb+'KB. Choose another');
+                    $("#"+message_id).css('color', 'red');
+                } else {
+                    $("#"+button_id).attr('disabled', false );
+                    $("#"+message_id).html('Selected file OK');
+                    $("#"+message_id).css('color', 'green');
+                }
+            }
+        }
+    });
+
+
     let vmPage = new Vue({
         el: '#employees-list',
         data: {
@@ -132,7 +164,7 @@
             }
         },
         deleteItem: function (id, name) {
-            console.log("Vals are "+id+", "+name);
+            //console.log("Vals are "+id+", "+name);
             //var name = attributes['data-name'] || '';
             //var id = attributes['data-id'] || null;
             //console.log(name);
@@ -152,13 +184,13 @@
                 this.deleting = true;
                 return axios.delete("/mpe/people-employees/" + id)
                     .then(function (response) {
-                        console.log(response);
+                        //console.log(response);
                     window.location = '{{ url()->current() }}';
                     return swal("Deleted!", "The employee was successfully deleted", "success");
                     })
                     .catch(function (error) {
                         var message = '';
-                        console.log(error);
+                        //console.log(error);
                         if (error.response) {
                             // The request was made and the server responded with a status code
                             // that falls out of the range of 2xx

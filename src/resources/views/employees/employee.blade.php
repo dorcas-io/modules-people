@@ -40,7 +40,7 @@
                 <h3 class="card-title">Associations</h3>
             </div>
             <div class="card-body">
-                Manage <strong>departments</strong> &amp; <strong>teams</strong> that @{{ employee.firstname }} belongs to below:
+                Manage <strong>departments</strong>, <strong>teams</strong>, <strong>user account</strong> &amp; <strong>permissions</strong> for @{{ employee.firstname }}:
                 <ul class="nav nav-tabs nav-justified">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#profile_departments">Departments</a>
@@ -48,7 +48,15 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#profile_teams">Teams</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#profile_permissions_user" v-bind:class="{'disabled': typeof employee.user !== 'undefined'}">User Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#profile_permissions_module" v-bind:class="{'disabled': typeof employee.user === 'undefined'}">Module</a>
+                    </li>
                 </ul>
+
+                <!--  v-bind:class="{'disabled': typeof employee.user === 'undefined'} v-bind:class="{'active': typeof employee.user !== 'undefined'}" -->
 
                 <div class="tab-content">
                     <div class="tab-pane container active" id="profile_departments">
@@ -107,6 +115,78 @@
                             </div>
                         </div>
                     </div>
+                    <div class="tab-pane container" id="profile_permissions_user">
+                        <br/>
+                        <form action="" method="post">
+                            {{ csrf_field() }}
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <input class="form-control" autocomplete="off" required name="email" type="email" maxlength="80" v-model="employee.email"
+                                           class="validate {{ $errors->has('email') ? ' invalid' : '' }}" id="email">
+                                    <label for="email"  @if ($errors->has('email')) data-error="{{ $errors->first('email') }}" @endif class="center-align">Email</label>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <input class="form-control" autocomplete="off" required name="password" type="password"
+                                           class="validate {{ $errors->has('password') ? ' invalid' : '' }}" id="password">
+                                    <label for="password" @if ($errors->has('password'))data-error="{{ $errors->first('password') }}"@endif>Password</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <input class="form-control" autocomplete="off" required name="firstname" type="text" maxlength="100" v-model="employee.firstname"
+                                           class="validate {{ $errors->has('firstname') ? ' invalid' : '' }}" id="firstname">
+                                    <label for="firstname"  @if ($errors->has('firstname')) data-error="{{ $errors->first('firstname') }}" @endif class="center-align">Firstname</label>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <input class="form-control" autocomplete="off" required name="lastname" type="text" maxlength="30" v-model="employee.lastname"
+                                           class="validate {{ $errors->has('lastname') ? ' invalid' : '' }}" id="lastname">
+                                    <label for="lastname"  @if ($errors->has('lastname')) data-error="{{ $errors->first('lastname') }}" @endif class="center-align">Lastname</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <input class="form-control" autocomplete="off" name="phone" type="text" maxlength="30" v-model="employee.phone"
+                                           class="validate {{ $errors->has('phone') ? ' invalid' : '' }}" id="phone">
+                                    <label for="phone"  @if ($errors->has('phone')) data-error="{{ $errors->first('phone') }}" @endif class="center-align">Phone</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <button class="btn btn-primary" type="submit" name="action" value="create_user">
+                                    Create User Account
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="tab-pane container" id="profile_permissions_module" v-if="typeof employee.user !== 'undefined'">
+                        <br/>
+                        <form action="" method="post">
+                            {{ csrf_field() }}
+                            <div class="row">
+                                @if (!empty($employee->user))
+                                    @foreach ($setupUiFields as $field)
+                                        <div class="col-md-12 m6">
+
+                                            <div class="form-label">&nbsp;</div>
+                                            <div class="custom-controls-stacked">
+                                                <label class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" name="selected_apps[]" value="{{ $field['id'] }}" {{ !empty($field['enabled']) ? 'checked' : '' }} {{ !empty($field['is_readonly']) ? 'disabled' : '' }}>
+                                                    <span class="custom-control-label">{{ $field['name'] }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <div class="row">
+                                <button class="btn btn-primary" type="submit" name="action" value="update_module_access">
+                                    Update Module Access Permissions
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -473,6 +553,7 @@
                 }];
                 //console.log(this.addedDepartments);
                 //console.log(this.employee);
+                console.log(this.employee.user)
             }
         });
     </script>

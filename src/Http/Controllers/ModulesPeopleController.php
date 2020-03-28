@@ -359,6 +359,14 @@ class ModulesPeopleController extends Controller {
      */
     public function employees_new(Request $request, Sdk $sdk)
     {
+        $this->data['submenuAction'] = '
+            <div class="dropdown"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Employee Actions</button>
+                <div class="dropdown-menu">
+                <a href="'.route("people-employees-new").'" class="dropdown-item">Add Employee</a>
+                <a href="#" data-toggle="modal" data-target="#employees-import-modal" class="dropdown-item">Import Employees From CSV</a>
+                </div>
+            </div>
+        ';
 
         $this->data['page']['title'] .= ' &rsaquo; New Employee';
         $this->data['header']['title'] = 'New Employee';
@@ -652,7 +660,7 @@ class ModulesPeopleController extends Controller {
                 if (!$query->isSuccessful()) {
                     throw new \RuntimeException('Failed while updating The employee\'s module access. Please try again.');
                 }
-                $message = ['Successfully updated module access for this '.$employee->firstname];
+                $message = ['Successfully updated module access for '.$employee->firstname];
                 
             }
             $response = (tabler_ui_html_response($message))->setType(UiResponse::TYPE_SUCCESS);

@@ -6,7 +6,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form action="" id="form-employees-import" method="post" enctype="multipart/form-data">
+				<form action="{{ route('people-employees-import') }}" id="form-employees-import" method="post" enctype="multipart/form-data">
 					{{ csrf_field() }}
 					<fieldset class="form-fieldset">
 	                    <div class="form-group col-md-6">

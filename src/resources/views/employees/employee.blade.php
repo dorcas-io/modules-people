@@ -197,6 +197,7 @@
 
 @section('body_js')
     <script type="text/javascript">
+
         new Vue({
             el: '#employee_profile_card',
             data: {

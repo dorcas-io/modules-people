@@ -103,13 +103,41 @@
         </form>
 
     </div>
-
+    @include('modules-people::modals.employees-import')
 </div>
 
 @endsection
 @section('body_js')
     <script type="text/javascript">
 
+        var vmImportModal = new Vue({
+            el: '#employees-import-modal',
+            data: {
+                fileUpload: { message : '', area: '', file: '' },
+            },
+            mounted: function () {
+
+            },
+            computed: {
+
+            },
+            methods: {
+                fileUploadCheck: function(element_id, label_id, message_id, button_id, file_size_max_kb) {
+                    this.fileUpload.file = this.$refs[element_id].files[0];
+                    //console.log(this.fileUpload.file)
+                    $("#"+label_id).html(this.fileUpload.file.name);
+                    if (this.fileUpload.file.size > (file_size_max_kb * 100)) {
+                        $("#"+button_id).attr('disabled', true );
+                        $("#"+message_id).html('Selected file size > '+file_size_max_kb+'KB. Choose another');
+                        $("#"+message_id).css('color', 'red');
+                    } else {
+                        $("#"+button_id).attr('disabled', false );
+                        $("#"+message_id).html('Selected file OK');
+                        $("#"+message_id).css('color', 'green');
+                    }
+                }
+            }
+        });
         new Vue({
             el: '#employees_new',
             data: {
@@ -165,8 +193,10 @@
                                     if (error.response) {
                                         // The request was made and the server responded with a status code
                                         // that falls out of the range of 2xx
-                                        var e = error.response.data.errors[0];
-                                        message = e.title;
+                                        //var e = error.response.data.errors[0];
+                                        //message = e.title;
+                                            var e = error.response;
+                                            message = e.data.message;
                                     } else if (error.request) {
                                         // The request was made but no response was received
                                         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of

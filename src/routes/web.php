@@ -12,9 +12,10 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::delete('/people-departments/{id}/employees', 'ModulesPeopleController@departments_employees_delete');
 
     Route::get('/people-employees', 'ModulesPeopleController@employees')->name('people-employees');
-    Route::post('/people-employees', 'ModulesPeopleController@employees_import');
+    Route::post('/people-employees', 'ModulesPeopleController@employees_import')->name('people-employees-import');
     Route::delete('/people-employees/{id}', 'ModulesPeopleController@employees_delete');
     Route::get('/people-employees-new', 'ModulesPeopleController@employees_new')->name('people-employees-new');
+    Route::post('/people-employees-new', 'ModulesPeopleController@employees_create');
     Route::post('/finance-entries', 'ModulesFinanceController@entries_create');
     Route::get('/people-employees/{id}', 'ModulesPeopleController@employees_view')->name('people-employees-view');
     Route::put('/people-employees/{id}', 'ModulesPeopleController@employees_update');

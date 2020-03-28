@@ -85,7 +85,7 @@
 
 @section('body_js')
 <script>
-    app.currentUser = {!! json_encode($dorcasUser) !!};
+    //app.currentUser = {!! json_encode($dorcasUser) !!};
 
     var vmImportModal = new Vue({
         el: '#employees-import-modal',

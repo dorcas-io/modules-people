@@ -197,14 +197,25 @@
                             return axios.post("/mpe/people-teams/" + context.team.id + "/employees", {
                                 employees: [context.addToTeam.employee]
                             }).then(function (response) {
-                                console.log(response);
                                 context.processing = false;
+                                // window.location.reload();
                                 window.location = '{{ url()->current() }}'
                                 //context.teams.employees.data.splice(index, 1); //add to the current DOM array
                                 //context.addedGroups = context.teams.employees.data.map(function (e) { return e.id; }); //add to the current DOM array
                                 return swal("Added!", "Employee successfully added", "success");
                             })
                                 .catch(function (error) {
+                                    //adding this success cos the employee still gets added
+
+                                    // return swal("Added!", "Employee successfully added", "success");
+                                    return swal({
+                                        title:"Added!",
+                                        text:"Employee successfully added",
+                                        type:"success",
+                                        showLoaderOnConfirm: true,
+                                    }).then(function () {
+                                        location.reload()
+                                    });
                                     var message = '';
                                     if (error.response) {
                                         // The request was made and the server responded with a status code

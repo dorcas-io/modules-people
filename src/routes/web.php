@@ -27,6 +27,12 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::get('people-teams/{id}', 'ModulesPeopleController@teams_view')->name('people-teams-view');
     Route::post('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_add');
     Route::delete('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_delete');
+
+    Route::get('tasks','ModulesPeopleController@tasks')->name('all-tasks');
+    Route::post('task/create','ModulesPeopleController@createTask')->name('create-tasks');
+    Route::get('task/{id}','ModulesPeopleController@Task')->name('task');
+    Route::post('task/{id}/update','ModulesPeopleController@updateTask')->name('task');
+    
 });
 
 

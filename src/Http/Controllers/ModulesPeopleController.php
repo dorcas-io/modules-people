@@ -849,5 +849,77 @@ class ModulesPeopleController extends Controller {
 
     }
 
+    public function tasks(Request $request, Sdk $sdk){
+
+      $task =   $sdk->createTaskResource();
+
+    }
+
+    public function createTask(Request $request , Sdk $sdk)
+    {
+        $response =  $sdk->createTaskResource()
+                            ->addBodyParam('task', $request->task)
+                            ->addBodyParam('task_description', $request->task_description)
+                            ->addBodyParam('priority', $request->priority)
+                            ->addBodyParam('status', $request->status)
+                            ->addBodyParam('start_date', $request->start_date)
+                            ->addBodyParam('end_date', $request->end_date)
+                            ->send('post',['create']);
+
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+            throw new \RuntimeException($message);
+        }
+    
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+    }
+
+
+    public function Task(Request $request, Sdk $sdk , $id)
+    {
+        
+        $response =  $sdk->createTaskResource()->send('get',[$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+            throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+    }
+
+
+    public function updateTask(Request $request, Sdk $sdk , $id){
+
+            $response =  $sdk->createTaskResource()
+                                    ->addBodyParam('task', $request->task)
+                                    ->addBodyParam('task_description',$request->task_description)
+                                    ->addBodyParam('priority', $request->priority)
+                                    ->addBodyParam('status', $request->status)
+                                    ->addBodyParam('start_date',$request->start_date)
+                                    ->addBodyParam('end_date',$request->end_date)
+                                    ->send('post',['update',$id]);
+
+            # make the request
+            if (!$response->isSuccessful()) {
+                // do something here
+                $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+                throw new \RuntimeException($message);
+            }
+        
+            $this->data = $response->getData();
+    
+            return response()->json($this->data);
+    }
+
 
 }

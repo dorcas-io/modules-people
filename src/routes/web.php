@@ -28,10 +28,14 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::post('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_add');
     Route::delete('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_delete');
 
-    Route::get('tasks','ModulesPeopleController@tasks')->name('all-tasks');
+    Route::get('people-tasks','ModulesPeopleController@tasks')->name('people-tasks');
     Route::post('task/create','ModulesPeopleController@createTask')->name('create-tasks');
-    Route::get('task/{id}','ModulesPeopleController@Task')->name('task');
-    Route::post('task/{id}/update','ModulesPeopleController@updateTask')->name('task');
+    Route::get('task/{id}','ModulesPeopleController@Task')->name('task-edit');
+    Route::post('task/{id}/update','ModulesPeopleController@updateTask')->name('task-update');
+    Route::post('task-status/{id}/update','ModulesPeopleController@updateTaskStatus')->name('task-status-update');
+    Route::post('task/{id}/assign','ModulesPeopleController@assignTaskToEmployee')->name('task-assign');
+    Route::post('task/{id}/remove_employee','ModulesPeopleController@removeTaskToEmployee')->name('task-remove');
+    Route::get('task/{id}/task_employee','ModulesPeopleController@allTaskEmployee')->name('task-employee');
     
 });
 

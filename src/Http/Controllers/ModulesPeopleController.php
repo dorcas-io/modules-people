@@ -849,9 +849,26 @@ class ModulesPeopleController extends Controller {
 
     }
 
+      /**
+     * @param Request $request
+     * @param Sdk     $sdk
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function tasks(Request $request, Sdk $sdk){
 
-      $task =   $sdk->createTaskResource();
+
+      $this->data['page']['title'] .= ' &rsaquo; Tasks';
+      $this->data['header']['title'] = 'Tasks';
+      $this->data['selectedSubMenu'] = 'people-tasks';
+      $this->data['submenuAction'] = '<a href="#" v-on:click.prevent="createTask" class="btn btn-primary btn-block">Add Task</a>';
+
+      $this->setViewUiResponse($request);
+
+      $this->data['tasks'] =  $sdk->createTaskResource()->send('get',['all'])->getData();
+  
+      return view('modules-people::tasks.tasks', $this->data);
 
     }
 
@@ -920,6 +937,82 @@ class ModulesPeopleController extends Controller {
     
             return response()->json($this->data);
     }
+
+    public function updateTaskStatus(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()
+                        ->addBodyParam('project_status', $request->project_status)
+                        ->send('post',['update/project_status',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+    public function assignTaskToEmployee(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()
+                        ->addBodyParam('email', $request->email)
+                        ->send('post',['assign_task',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+    public function removeTaskToEmployee(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()
+                        ->addBodyParam('employee_id', $request->employee_id)
+                        ->send('post',['remove_employee_task',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+
+    public function allTaskEmployee(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()->send('get',['employee_tasks',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
 
 
 }

@@ -15,6 +15,11 @@ return [
     	'route' => 'people-departments',
         'icon' => 'fe fe-grid',
     ],
+    'people-tasks' => [
+    	'title' => 'Tasks',
+    	'route' => 'people-tasks',
+        'icon' => 'fa fa-tasks',
+    ],
     'people-teams' => [
     	'title' => 'Teams',
     	'route' => 'people-teams',

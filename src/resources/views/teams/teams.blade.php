@@ -108,9 +108,9 @@
                             },
                             allowOutsideClick: () => !Swal.isLoading()
                         })
-                    /*.then(function() {
-                        //Swal.fire('Ajax request finished!')
-                    })*/
+                    // /*.then(function() {
+                    //     //Swal.fire('Ajax request finished!')
+                    // })*/
                     } else {
                         Swal.fire({
                             title: "Unable to Delete!",

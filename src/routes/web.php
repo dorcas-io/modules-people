@@ -36,6 +36,7 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::post('task/{id}/assign','ModulesPeopleController@assignTaskToEmployee')->name('task-assign');
     Route::post('task/{id}/remove_employee','ModulesPeopleController@removeTaskToEmployee')->name('task-remove');
     Route::get('task/{id}/task_employee','ModulesPeopleController@allTaskEmployee')->name('task-employee');
+    Route::get('people-tasks/{task_id}','ModulesPeopleController@viewTask')->name('task-view');
     
 });
 

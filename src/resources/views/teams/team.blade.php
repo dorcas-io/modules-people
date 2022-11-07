@@ -181,7 +181,7 @@
                     if (empl === null) {
                         return false;
                     }
-                    console.log(empl);
+                
                     let empl_index = context.employees.findIndex(x => x.id === empl );
                     employee = typeof context.employees[empl_index] !== 'undefined' ? context.employees[empl_index] : [];
                     Swal.fire({
@@ -206,7 +206,6 @@
                             })
                                 .catch(function (error) {
                                     //adding this success cos the employee still gets added
-
                                     // return swal("Added!", "Employee successfully added", "success");
                                     return swal({
                                         title:"Added!",

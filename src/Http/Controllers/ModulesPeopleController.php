@@ -874,6 +874,7 @@ class ModulesPeopleController extends Controller {
 
     public function createTask(Request $request , Sdk $sdk)
     {
+        
         $response =  $sdk->createTaskResource()
                             ->addBodyParam('task', $request->task)
                             ->addBodyParam('task_description', $request->task_description)
@@ -887,13 +888,22 @@ class ModulesPeopleController extends Controller {
         # make the request
         if (!$response->isSuccessful()) {
             // do something here
-            $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
-            throw new \RuntimeException($message);
+            $response = $response->errors[0]['title'] ?? 'Failed while trying to create task record.';
+            throw new \RuntimeException($response);
         }
     
         $this->data = $response->getData();
 
-        return response()->json($this->data);
+        if($request->expectsJson()){
+            return response()->json($this->data);
+        }
+        
+        $response = (tabler_ui_html_response(['Successfully added task.']))->setType(UiResponse::TYPE_SUCCESS);
+
+        return back()->with('UiResponse', $response);
+
+        // return redirect(url()->current())->with('UiResponse', $response);
+        // return view('modules-people::tasks.task', $this->data);
     }
 
 
@@ -905,11 +915,12 @@ class ModulesPeopleController extends Controller {
         # make the request
         if (!$response->isSuccessful()) {
             // do something here
-            $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+            $message = $response->errors[0]['title'] ?? 'Failed while trying to fetch task.';
             throw new \RuntimeException($message);
         }
 
-        $this->data = $response->getData();
+        $this->data = $response;
+        
 
         return response()->json($this->data);
     }
@@ -929,7 +940,7 @@ class ModulesPeopleController extends Controller {
             # make the request
             if (!$response->isSuccessful()) {
                 // do something here
-                $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+                $message = $response->errors[0]['title'] ?? 'Failed while trying to update task.';
                 throw new \RuntimeException($message);
             }
         
@@ -947,7 +958,7 @@ class ModulesPeopleController extends Controller {
         # make the request
         if (!$response->isSuccessful()) {
         // do something here
-        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        $message = $response->errors[0]['title'] ?? 'Failed while trying to update task status';
         throw new \RuntimeException($message);
         }
 
@@ -966,7 +977,7 @@ class ModulesPeopleController extends Controller {
         # make the request
         if (!$response->isSuccessful()) {
         // do something here
-        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        $message = $response->errors[0]['title'] ?? 'Failed while trying to assign task to employee.';
         throw new \RuntimeException($message);
         }
 
@@ -985,7 +996,7 @@ class ModulesPeopleController extends Controller {
         # make the request
         if (!$response->isSuccessful()) {
         // do something here
-        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        $message = $response->errors[0]['title'] ?? 'Failed while trying to remove employee from taskrecord.';
         throw new \RuntimeException($message);
         }
 
@@ -1003,13 +1014,35 @@ class ModulesPeopleController extends Controller {
         # make the request
         if (!$response->isSuccessful()) {
         // do something here
-        $message = $response->errors[0]['title'] ?? 'Failed while adding the employee record.';
+        $message = $response->errors[0]['title'] ?? 'Failed while fetching task record.';
         throw new \RuntimeException($message);
         }
 
         $this->data = $response->getData();
 
         return response()->json($this->data);
+
+    }
+
+    public function viewTask(Request $request, Sdk $sdk , $task_id)
+    {
+       
+        $response =  $sdk->createTaskResource()->send('get',[$task_id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while fetching task record.';
+            throw new \RuntimeException($message);
+        }
+
+        // dd($this->data );
+        $this->data['task'] = $response->getData();;
+        $this->data['employees'] = $sdk->createEmployeeResource()->send('get')->getData();
+  
+
+
+        return view('modules-people::tasks.task', $this->data);
 
     }
 

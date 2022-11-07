@@ -14,9 +14,9 @@
         }
     ],
     "require": {
-        "php": "^7.4|8.1.7",
+        "php": "^7.4|8.1.10",
         "aws/aws-sdk-php": "^3.74",
-        "guzzlehttp/guzzle": "^6.3",
+        "guzzlehttp/guzzle": "^7.4",
         "laravel/framework": "^8.0"
     },
     "require-dev": {

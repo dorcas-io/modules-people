@@ -12,7 +12,9 @@
 
         <div class="container" id="listing_tasks">
             <div class="row mt-3" v-show="tasks.length > 0">
-                <task-card class="s12 m4" v-for="(task, index) in tasks" :key="task.id" :task="task" :index="index"
+                <task-card class="s12 m4" v-for="(task, index) in tasks" 
+                :key="task.id" :task="task" :index="index" 
+                :employeeCount="employeeCount" :employees="employees"
                 v-on:edit-task="editTask" v-on:delete-task="deleteTask"
                 ></task-card>
                
@@ -44,14 +46,19 @@
        el: '#listing_tasks',
        data: {
            tasks: {!! json_encode(!empty($tasks) ? $tasks : []) !!},
-           task: {task: '', task_description: ''},
-       },
-       computed: {
-           showTaskId: function () {
-               return typeof this.task.id !== 'undefined';
-           }
+           task:  {name: '', task_description: ''},
+           employees : [],
+           employeeCount : 0,
           
        },
+       created() {
+         this.tasks.forEach((task , index)=> {
+            task.employees.data.map((employee , index)  => {
+              this.employeeCount = task.employees.data.length
+              this.employees.push(employee.email)
+            })
+         })
+        },
        methods: {
            createTask :function () {
             console.log('ehheeh')
@@ -59,71 +66,71 @@
                $('#manage-task-modal').modal('show');
            },
            editTask: function (index) {
-               let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
-               if (task === null) {
-                   return;
-               }
-               this.task = task;
-               $('#manage-task-modal').modal('show');
-           },
-           deleteTask: function (index) {
-               let tasks = typeof this.tasks !== 'undefined' ? this.tasks : null;
-               let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
-               if (task === null) {
-                   return;
-               }
-               ///team.is_default = team.is_default ? 1 : 0;
-               this.task = task;
-               // let e_count = typeof task.counts.employees !== 'undefined' ? task.counts.employees : 0;
-               // let context = this;
-               // if (e_count<1) {
-                   Swal.fire({
-                       title: "Are you sure?",
-                       text: "You are about to delete team " + context.task.name,
-                       type: "warning",
-                       showCancelButton: true,
-                       confirmButtonColor: "#DD6B55",
-                       confirmButtonText: "Yes, delete it!",
-                       showLoaderOnConfirm: true,
-                       preConfirm: (teams_delete) => {
-                       return axios.delete("/mpe/people-teams/" + context.task.id)
-                           .then(function (response) {
-                               //console.log(response);
-                               context.teams.splice(index, 1);
-                               return swal("Deleted!", "The team was successfully deleted.", "success");
-                           })
-                           .catch(function (error) {
-                               var message = '';
-                               if (error.response) {
-                                   // The request was made and the server responded with a status code
-                                   // that falls out of the range of 2xx
-                                   var e = error.response.data.errors[0];
-                                   message = e.title;
-                               } else if (error.request) {
-                                   // The request was made but no response was received
-                                   // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                                   // http.ClientRequest in node.js
-                                   message = 'The request was made but no response was received';
-                               } else {
-                                   // Something happened in setting up the request that triggered an Error
-                                   message = error.message;
-                               }
-                               return swal("Delete Failed", message, "warning");
-                           });
-                       },
-                       allowOutsideClick: () => !Swal.isLoading()
-                   })
-               /*.then(function() {
-                   //Swal.fire('Ajax request finished!')
-               })*/
-               } else {
-                   Swal.fire({
-                       title: "Unable to Delete!",
-                       text: "The team \"" + task.name + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
-                       type: "error"
-                   })
-               }
-           }
+                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
+                    if (tasks === null) {
+                        return;
+                    }
+                    this.task = task;
+                    $('#manage-task-modal').modal('show');
+            },
+            deleteTask: function (index) {
+                    let tasks = typeof this.tasks !== 'undefined' ? this.tasks : null;
+                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
+                    if (task === null) {
+                        return;
+                    }
+                    ///team.is_default = team.is_default ? 1 : 0;
+                    this.task = task;
+                    let e_count = typeof task.counts.employees !== 'undefined' ? task.counts.employees : 0;
+                    let context = this;
+                    if (e_count<1) {
+                        Swal.fire({
+                            title: "Are you sure?",
+                            text: "You are about to delete team " + context.task.name,
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Yes, delete it!",
+                            showLoaderOnConfirm: true,
+                            preConfirm: (teams_delete) => {
+                            return axios.delete("/mpe/people-tasks/" + context.task.id)
+                                .then(function (response) {
+                                    //console.log(response);
+                                    context.task.splice(index, 1);
+                                    return swal("Deleted!", "The team was successfully deleted.", "success");
+                                })
+                                .catch(function (error) {
+                                    var message = '';
+                                    if (error.response) {
+                                        // The request was made and the server responded with a status code
+                                        // that falls out of the range of 2xx
+                                        var e = error.response.data.errors[0];
+                                        message = e.title;
+                                    } else if (error.request) {
+                                        // The request was made but no response was received
+                                        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                                        // http.ClientRequest in node.js
+                                        message = 'The request was made but no response was received';
+                                    } else {
+                                        // Something happened in setting up the request that triggered an Error
+                                        message = error.message;
+                                    }
+                                    return swal("Delete Failed", message, "warning");
+                                });
+                            },
+                            allowOutsideClick: () => !Swal.isLoading()
+                        })
+                    // /*.then(function() {
+                    //     //Swal.fire('Ajax request finished!')
+                    // })*/
+                    } else {
+                        Swal.fire({
+                            title: "Unable to Delete!",
+                            text: "The team \"" + task.task + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
+                            type: "error"
+                        })
+                    }
+                }
        }
    });
 

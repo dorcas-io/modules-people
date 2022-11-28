@@ -10,28 +10,27 @@
 
     <div class="col-md-9 col-xl-9">
 
-        <div class="container" id="listing_tasks">
-            <div class="row mt-3" v-show="tasks.length > 0">
-                <task-card class="s12 m4" v-for="(task, index) in tasks" 
-                :key="task.id" :task="task" :index="index" 
-                :employeeCount="employeeCount" :employees="employees"
-                v-on:edit-task="editTask" v-on:delete-task="deleteTask"
-                ></task-card>
+        <div class="container" id="listing_projects">
+            <div class="row mt-3" v-show="projects.length > 0">
+                <project-card class="s12 m4" v-for="(project, index) in projects" 
+                :key="project.id" :project="project" :index="index" 
+                {{-- v-on:edit-task="editTask" v-on:delete-task="deleteTask" --}}
+                ></project-card>
                
             </div>
-            <div class="col s12" v-if="tasks.length === 0">
+            <div class="col s12" v-if="projects.length === 0">
                 @component('layouts.blocks.tabler.empty-fullpage')
                     @slot('title')
-                        No Tasks
+                        No Projects
                     @endslot
-                    You can add one or more takss to organise your projects and workflow.
+                    You can add one or more projects to organise your projects and workflow.
                     @slot('buttons')
-                        <a href='#' v-on:click.prevent="createTask" class="btn btn-primary btn-sm">Add Task</a>
+                        <a href='#' v-on:click.prevent="createTask" class="btn btn-primary btn-sm">Add Project</a>
                     @endslot
                     
                 @endcomponent
             </div>
-            @include('modules-people::modals.task')
+            @include('modules-people::modals.project')
         </div>
 
     </div>
@@ -43,28 +42,28 @@
 @section('body_js')
 <script type="text/javascript">
    var vm = new Vue({
-       el: '#listing_tasks',
+       el: '#listing_projects',
        data: {
-           tasks: {!! json_encode(!empty($tasks) ? $tasks : []) !!},
-           task:  {name: '', task_description: ''},
            projects: {!! json_encode(!empty($projects) ? $projects : []) !!},
+           task:  {name: '', project_description: ''},
            employees : [],
            employeeCount : 0,
           
        },
        created() {
-         this.tasks.forEach((task , index)=> {
-            task.employees.data.map((employee , index)  => {
-              this.employeeCount = task.employees.data.length
-              this.employees.push(employee.email)
-            })
-         })
+         console.log(this.projects)
+         // this.tasks.forEach((task , index)=> {
+         //    task.employees.data.map((employee , index)  => {
+         //      this.employeeCount = task.employees.data.length
+         //      this.employees.push(employee.email)
+         //    })
+         // })
         },
        methods: {
            createTask :function () {
-            console.log('ehheeh')
+           
                // this.task = {name: '', description: ''};
-               $('#manage-task-modal').modal('show');
+               $('#manage-project-modal').modal('show');
            },
            editTask: function (index) {
                     let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;

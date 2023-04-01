@@ -27,6 +27,29 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::get('people-teams/{id}', 'ModulesPeopleController@teams_view')->name('people-teams-view');
     Route::post('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_add');
     Route::delete('/people-teams/{id}/employees', 'ModulesPeopleController@teams_employees_delete');
+
+    Route::get('people-tasks','ModulesPeopleController@tasks')->name('people-tasks');
+    Route::post('task/create','ModulesPeopleController@createTask')->name('create-tasks');
+    Route::get('task/{id}','ModulesPeopleController@Task')->name('task-edit');
+    Route::post('task/{id}/update','ModulesPeopleController@updateTask')->name('task-update');
+    Route::post('task-status/{id}/update','ModulesPeopleController@updateTaskStatus')->name('task-status-update');
+    Route::post('task/{id}/assign','ModulesPeopleController@assignTaskToEmployee')->name('task-assign');
+    Route::post('task/{id}/remove_employee','ModulesPeopleController@removeTaskToEmployee')->name('task-remove');
+    Route::get('task/{id}/task_employee','ModulesPeopleController@allTaskEmployee')->name('task-employee');
+    Route::get('people-tasks/{task_id}','ModulesPeopleController@viewTask')->name('task-view');
+
+
+    Route::get('people-projects','ModulesPeopleController@projects')->name('people-projects');
+    Route::post('project/create','ModulesPeopleController@createProject')->name('create-projects');
+    Route::get('project/{id}','ModulesPeopleController@Project')->name('project-edit');
+    Route::post('project/{id}/update','ModulesPeopleController@updateProject')->name('project-update');
+    Route::post('project-status/{id}/update','ModulesPeopleController@updateProjectStatus')->name('project-status-update');
+    Route::post('project/department-assign/{id}','ModulesPeopleController@assignProjectToDepartment')->name('assign-project');
+    Route::post('project/department-unassign/{id}','ModulesPeopleController@unassignProjectToDepartment')->name('unassign-project');
+    // Route::post('task/{id}/remove_employee','ModulesPeopleController@removeTaskToEmployee')->name('task-remove');
+    // Route::get('task/{id}/task_employee','ModulesPeopleController@allTaskEmployee')->name('task-employee');
+    Route::get('people-projects/{project_id}','ModulesPeopleController@viewProject')->name('project-view');
+    
 });
 
 

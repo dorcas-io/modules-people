@@ -849,5 +849,396 @@ class ModulesPeopleController extends Controller {
 
     }
 
+      /**
+     * @param Request $request
+     * @param Sdk     $sdk
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function tasks(Request $request, Sdk $sdk){
+
+
+      $this->data['page']['title'] .= ' &rsaquo; Tasks';
+      $this->data['header']['title'] = 'Tasks';
+      $this->data['selectedSubMenu'] = 'people-tasks';
+      $this->data['submenuAction'] = '<a href="#" v-on:click.prevent="createTask" class="btn btn-primary btn-block">Add Task</a>';
+
+      $this->setViewUiResponse($request);
+
+      $this->data['tasks'] =  $sdk->createTaskResource()->send('get',['all'])->getData();
+      $this->data['projects'] = $sdk->createProjectResource()->send('get',['all'])->getData();
+  
+      return view('modules-people::tasks.tasks', $this->data);
+
+    }
+
+    public function createTask(Request $request , Sdk $sdk)
+    {
+        
+        $response =  $sdk->createTaskResource()
+                            ->addBodyParam('task', $request->task)
+                            ->addBodyParam('task_description', $request->task_description)
+                            ->addBodyParam('priority', $request->priority)
+                            ->addBodyParam('project', $request->project)
+                            ->addBodyParam('status', $request->status)
+                            ->addBodyParam('start_date', $request->start_date)
+                            ->addBodyParam('end_date', $request->end_date)
+                            ->send('post',['create']);
+
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $response = $response->errors[0]['title'] ?? 'Failed while trying to create task record.';
+            throw new \RuntimeException($response);
+        }
+    
+        $this->data = $response->getData();
+
+        if($request->expectsJson()){
+            return response()->json($this->data);
+        }
+        
+        $response = (tabler_ui_html_response(['Successfully added task.']))->setType(UiResponse::TYPE_SUCCESS);
+
+        return back()->with('UiResponse', $response);
+
+        // return redirect(url()->current())->with('UiResponse', $response);
+        // return view('modules-people::tasks.task', $this->data);
+    }
+
+
+    public function Task(Request $request, Sdk $sdk , $id)
+    {
+        
+        $response =  $sdk->createTaskResource()->send('get',[$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while trying to fetch task.';
+            throw new \RuntimeException($message);
+        }
+
+        $this->data = $response;
+        
+
+        return response()->json($this->data);
+    }
+
+
+    public function updateTask(Request $request, Sdk $sdk , $id){
+
+            $response =  $sdk->createTaskResource()
+                                    ->addBodyParam('task', $request->task)
+                                    ->addBodyParam('task_description',$request->task_description)
+                                    ->addBodyParam('priority', $request->priority)
+                                    ->addBodyParam('status', $request->status)
+                                    ->addBodyParam('project', $request->project)
+                                    ->addBodyParam('start_date',$request->start_date)
+                                    ->addBodyParam('end_date',$request->end_date)
+                                    ->send('post',['update',$id]);
+
+            # make the request
+            if (!$response->isSuccessful()) {
+                // do something here
+                $message = $response->errors[0]['title'] ?? 'Failed while trying to update task.';
+                throw new \RuntimeException($message);
+            }
+        
+            $this->data = $response->getData();
+    
+            return response()->json($this->data);
+    }
+
+    public function updateTaskStatus(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()
+                        ->addBodyParam('project_status', $request->project_status)
+                        ->send('post',['update/project_status',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while trying to update task status';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+    public function assignTaskToEmployee(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()
+                        ->addBodyParam('email', $request->email)
+                        ->send('post',['assign_task',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while trying to assign task to employee.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+    public function removeTaskToEmployee(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()
+                        ->addBodyParam('employee_id', $request->employee_id)
+                        ->send('post',['remove_employee_task',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while trying to remove employee from taskrecord.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+
+    public function allTaskEmployee(Request $request, Sdk $sdk , $id){
+
+        $response =  $sdk->createTaskResource()->send('get',['employee_tasks',$id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+        // do something here
+        $message = $response->errors[0]['title'] ?? 'Failed while fetching task record.';
+        throw new \RuntimeException($message);
+        }
+
+        $this->data = $response->getData();
+
+        return response()->json($this->data);
+
+    }
+
+    public function viewTask(Request $request, Sdk $sdk , $task_id)
+    {
+       
+        $response =  $sdk->createTaskResource()->send('get',[$task_id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while fetching task record.';
+            throw new \RuntimeException($message);
+        }
+
+        // dd($this->data );
+        $this->data['task'] = $response->getData();;
+        $this->data['employees'] = $sdk->createEmployeeResource()->send('get')->getData();
+  
+
+
+        return view('modules-people::tasks.task', $this->data);
+
+    }
+
+
+
+          /**
+     * @param Request $request
+     * @param Sdk     $sdk
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function projects(Request $request, Sdk $sdk){
+
+
+        $this->data['page']['title'] .= ' &rsaquo; Projects';
+        $this->data['header']['title'] = 'Projects';
+        $this->data['selectedSubMenu'] = 'people-projects';
+        $this->data['submenuAction'] = '<a href="#" v-on:click.prevent="createTask" class="btn btn-primary btn-block">Add Project</a>';
+  
+        $this->setViewUiResponse($request);
+  
+        $this->data['projects'] =  $sdk->createProjectResource()->send('get',['all'])->getData();
+    
+      
+    
+        return view('modules-people::projects.projects', $this->data);
+  
+      }
+  
+      public function createProject(Request $request , Sdk $sdk)
+      {
+          
+          $response =  $sdk->createProjectResource()
+                              ->addBodyParam('project', $request->project)
+                              ->addBodyParam('project_description', $request->project_description)
+                              ->addBodyParam('priority', $request->priority)
+                              ->addBodyParam('status', $request->status)
+                              ->addBodyParam('start_date', $request->start_date)
+                              ->addBodyParam('end_date', $request->end_date)
+                              ->send('post',['create']);
+  
+  
+          # make the request
+          if (!$response->isSuccessful()) {
+              // do something here
+              $response = $response->errors[0]['title'] ?? 'Failed while trying to create project record.';
+              throw new \RuntimeException($response);
+          }
+      
+          $this->data = $response->getData();
+  
+          if($request->expectsJson()){
+              return response()->json($this->data);
+          }
+          
+          $response = (tabler_ui_html_response(['Successfully added project.']))->setType(UiResponse::TYPE_SUCCESS);
+  
+          return back()->with('UiResponse', $response);
+  
+          // return redirect(url()->current())->with('UiResponse', $response);
+          // return view('modules-people::tasks.task', $this->data);
+      }
+  
+  
+      public function Project(Request $request, Sdk $sdk , $id)
+      {
+          
+          $response =  $sdk->createProjectResource()->send('get',[$id]);
+  
+          # make the request
+          if (!$response->isSuccessful()) {
+              // do something here
+              $message = $response->errors[0]['title'] ?? 'Failed while trying to fetch task.';
+              throw new \RuntimeException($message);
+          }
+  
+          $this->data = $response;
+          
+  
+          return response()->json($this->data);
+      }
+  
+  
+      public function updateProject(Request $request, Sdk $sdk , $id){
+  
+              $response =  $sdk->createProjectResource()
+                                      ->addBodyParam('project', $request->project)
+                                      ->addBodyParam('task_description',$request->project_description)
+                                      ->addBodyParam('priority', $request->priority)
+                                      ->addBodyParam('status', $request->status)
+                                      ->addBodyParam('start_date',$request->start_date)
+                                      ->addBodyParam('end_date',$request->end_date)
+                                      ->send('post',['update',$id]);
+  
+              # make the request
+              if (!$response->isSuccessful()) {
+                  // do something here
+                  $message = $response->errors[0]['title'] ?? 'Failed while trying to update project.';
+                  throw new \RuntimeException($message);
+              }
+          
+              $this->data = $response->getData();
+      
+              return response()->json($this->data);
+      }
+  
+      public function updateProjectStatus(Request $request, Sdk $sdk , $id){
+  
+          $response =  $sdk->createProjectResource()
+                          ->addBodyParam('project_status', $request->project_status)
+                          ->send('post',['update/project_status',$id]);
+  
+          # make the request
+          if (!$response->isSuccessful()) {
+          // do something here
+          $message = $response->errors[0]['title'] ?? 'Failed while trying to update project status';
+          throw new \RuntimeException($message);
+          }
+  
+          $this->data = $response->getData();
+  
+          return response()->json($this->data);
+  
+      }
+  
+      public function viewProject(Request $request, Sdk $sdk , $project_id)
+      {
+        
+          $response =  $sdk->createProjectResource()->send('get',[$project_id]);
+  
+          # make the request
+          if (!$response->isSuccessful()) {
+              // do something here
+              $message = $response->errors[0]['title'] ?? 'Failed while fetching task record.';
+              throw new \RuntimeException($message);
+          }
+  
+          // dd($this->data );
+          $this->data['project'] = $response->getData();;
+          
+          $this->data['departments'] = $sdk->createDepartmentResource()->send('get')->getData();
+    
+  
+          return view('modules-people::projects.project', $this->data);
+  
+      }
+
+
+      public function assignProjectToDepartment(Request $request, Sdk $sdk , $project_id)
+      {
+          
+            $response =  $sdk->createProjectResource()
+                             ->addBodyParam('department_id', $request->department_id)
+                             ->send('post',['assign/department',$project_id]);
+
+                            
+
+              # make the request
+          if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while trying to update project status';
+            throw new \RuntimeException($message);
+            }
+    
+            $this->data = $response->getData();
+    
+            return response()->json($this->data);
+                            
+      }
+
+      public function unassignProjectToDepartment(Request $request, Sdk $sdk , $project_id)
+      {
+          
+            $response =  $sdk->createProjectResource()
+                             ->addBodyParam('department_id', $request->department_id)
+                             ->send('post',['un-assign/department',$project_id]);
+
+                            
+
+              # make the request
+          if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while trying to update project status';
+            throw new \RuntimeException($message);
+            }
+    
+            $this->data = $response->getData();
+    
+            return response()->json($this->data);
+                            
+      }
+  
+
 
 }

@@ -10,23 +10,27 @@
 
     <div class="col-md-9 col-xl-9">
 
-        <div class="container" id="listing_teams">
-            <div class="row mt-3" v-show="teams.length > 0">
-                <team-card class="s12 m4" v-for="(team, index) in teams" :key="team.id" :team="team" :index="index"
-                             v-on:edit-team="editTeam" v-on:delete-team="deleteTeam"></team-card>
+        <div class="container" id="listing_projects">
+            <div class="row mt-3" v-show="projects.length > 0">
+                <project-card class="s12 m4" v-for="(project, index) in projects" 
+                :key="project.id" :project="project" :index="index" 
+                {{-- v-on:edit-task="editTask" v-on:delete-task="deleteTask" --}}
+                ></project-card>
+               
             </div>
-            <div class="col s12" v-if="teams.length === 0">
+            <div class="col s12" v-if="projects.length === 0">
                 @component('layouts.blocks.tabler.empty-fullpage')
                     @slot('title')
-                        No Teams
+                        No Projects
                     @endslot
-                    You can add one or more teams to organise your projects and workflow.
+                    You can add one or more projects to organise your projects and workflow.
                     @slot('buttons')
-                        <a href="#" v-on:click.prevent="createTeam" class="btn btn-primary btn-sm">Add Team</a>
+                        <a href='#' v-on:click.prevent="createTask" class="btn btn-primary btn-sm">Add Project</a>
                     @endslot
+                    
                 @endcomponent
             </div>
-            @include('modules-people::modals.team')
+            @include('modules-people::modals.project')
         </div>
 
     </div>
@@ -36,55 +40,63 @@
 
 @endsection
 @section('body_js')
-    <script type="text/javascript">
-        var vm = new Vue({
-            el: '#listing_teams',
-            data: {
-                teams: {!! json_encode(!empty($teams) ? $teams : []) !!},
-                team: {name: '', description: ''},
-            },
-            computed: {
-                showTeamId: function () {
-                    return typeof this.team.id !== 'undefined';
-                }
-            },
-            methods: {
-                createTeam: function () {
-                    this.team = {name: '', description: ''};
-                    $('#manage-team-modal').modal('show');
-                },
-                editTeam: function (index) {
-                    let team = typeof this.teams[index] !== 'undefined' ? this.teams[index] : null;
-                    if (team === null) {
+<script type="text/javascript">
+   var vm = new Vue({
+       el: '#listing_projects',
+       data: {
+           projects: {!! json_encode(!empty($projects) ? $projects : []) !!},
+           task:  {name: '', project_description: ''},
+           employees : [],
+           employeeCount : 0,
+          
+       },
+       created() {
+         console.log(this.projects)
+         // this.tasks.forEach((task , index)=> {
+         //    task.employees.data.map((employee , index)  => {
+         //      this.employeeCount = task.employees.data.length
+         //      this.employees.push(employee.email)
+         //    })
+         // })
+        },
+       methods: {
+           createTask :function () {
+           
+               // this.task = {name: '', description: ''};
+               $('#manage-project-modal').modal('show');
+           },
+           editTask: function (index) {
+                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
+                    if (tasks === null) {
                         return;
                     }
-                    this.team = team;
-                    $('#manage-team-modal').modal('show');
-                },
-                deleteTeam: function (index) {
-                    let teams = typeof this.teams !== 'undefined' ? this.teams : null;
-                    let team = typeof this.teams[index] !== 'undefined' ? this.teams[index] : null;
-                    if (team === null) {
+                    this.task = task;
+                    $('#manage-task-modal').modal('show');
+            },
+            deleteTask: function (index) {
+                    let tasks = typeof this.tasks !== 'undefined' ? this.tasks : null;
+                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
+                    if (task === null) {
                         return;
                     }
                     ///team.is_default = team.is_default ? 1 : 0;
-                    this.team = team;
-                    let e_count = typeof team.counts.employees !== 'undefined' ? team.counts.employees : 0;
+                    this.task = task;
+                    let e_count = typeof task.counts.employees !== 'undefined' ? task.counts.employees : 0;
                     let context = this;
                     if (e_count<1) {
                         Swal.fire({
                             title: "Are you sure?",
-                            text: "You are about to delete team " + context.team.name,
+                            text: "You are about to delete team " + context.task.name,
                             type: "warning",
                             showCancelButton: true,
                             confirmButtonColor: "#DD6B55",
                             confirmButtonText: "Yes, delete it!",
                             showLoaderOnConfirm: true,
                             preConfirm: (teams_delete) => {
-                            return axios.delete("/mpe/people-teams/" + context.team.id)
+                            return axios.delete("/mpe/people-tasks/" + context.task.id)
                                 .then(function (response) {
                                     //console.log(response);
-                                    context.teams.splice(index, 1);
+                                    context.task.splice(index, 1);
                                     return swal("Deleted!", "The team was successfully deleted.", "success");
                                 })
                                 .catch(function (error) {
@@ -114,24 +126,24 @@
                     } else {
                         Swal.fire({
                             title: "Unable to Delete!",
-                            text: "The team \"" + team.name + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
+                            text: "The team \"" + task.task + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
                             type: "error"
                         })
                     }
                 }
-            }
-        });
+       }
+   });
 
-        new Vue({
-            el: '#sub-menu-action',
-            data: {
+   new Vue({
+       el: '#sub-menu-action',
+       data: {
 
-            },
-            methods: {
-                createTeam: function () {
-                    vm.createTeam();
-                }
-            }
-        })
-    </script>
+       },
+       methods: {
+           createTask: function () {
+               vm.createTask();
+           }
+       }
+   })
+</script>
 @endsection

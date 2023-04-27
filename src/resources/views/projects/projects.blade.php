@@ -12,11 +12,11 @@
 
         <div class="container" id="listing_projects">
             <div class="row mt-3" v-show="projects.length > 0">
-                <project-card class="s12 m4" v-for="(project, index) in projects" 
-                :key="project.id" :project="project" :index="index" 
-                {{-- v-on:edit-task="editTask" v-on:delete-task="deleteTask" --}}
+                <project-card class="s12 m4" v-for="(project, index) in projects"
+                :key="project.id" :project="project" :index="index"
+                 v-on:edit-project="editProject" v-on:delete-task="deleteProject"
                 ></project-card>
-               
+
             </div>
             <div class="col s12" v-if="projects.length === 0">
                 @component('layouts.blocks.tabler.empty-fullpage')
@@ -31,6 +31,7 @@
                 @endcomponent
             </div>
             @include('modules-people::modals.project')
+            @include('modules-people::modals.edit-project')
         </div>
 
     </div>
@@ -44,14 +45,14 @@
    var vm = new Vue({
        el: '#listing_projects',
        data: {
-           projects: {!! json_encode(!empty($projects) ? $projects : []) !!},
-           task:  {name: '', project_description: ''},
+           projects:  {!! json_encode(!empty($projects) ? $projects : []) !!},
+           project:  {name: '', description: '', start_date: '', end_date: ''},
            employees : [],
            employeeCount : 0,
           
        },
        created() {
-         console.log(this.projects)
+         console.log(this.projects ,'here')
          // this.tasks.forEach((task , index)=> {
          //    task.employees.data.map((employee , index)  => {
          //      this.employeeCount = task.employees.data.length
@@ -65,15 +66,15 @@
                // this.task = {name: '', description: ''};
                $('#manage-project-modal').modal('show');
            },
-           editTask: function (index) {
-                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
-                    if (tasks === null) {
+           editProject: function (index) {
+                    let project = typeof this.projects[index] !== 'undefined' ? this.projects[index] : null;
+                    if (project === null) {
                         return;
                     }
-                    this.task = task;
-                    $('#manage-task-modal').modal('show');
+                    this.project = project;
+                    $('#manage-update-project-modal').modal('show');
             },
-            deleteTask: function (index) {
+            deleteProject: function (index) {
                     let tasks = typeof this.tasks !== 'undefined' ? this.tasks : null;
                     let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
                     if (task === null) {

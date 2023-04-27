@@ -19,11 +19,10 @@
              </div>
              <div class="form-group">
               <label class="form-label" for="description">Project</label>
-          
               <select  class="form-control" name="project">
                  <option disabled>Select Project</option>
                   @foreach($projects as $index => $project)
-                    <option value="{{ $project['_id'] }}" >
+                    <option value="{{ $project['id'] }}" >
                       {{ $project['name'] }}
                     </option>
                   @endforeach

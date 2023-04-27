@@ -42,7 +42,7 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::get('people-projects','ModulesPeopleController@projects')->name('people-projects');
     Route::post('project/create','ModulesPeopleController@createProject')->name('create-projects');
     Route::get('project/{id}','ModulesPeopleController@Project')->name('project-edit');
-    Route::post('project/{id}/update','ModulesPeopleController@updateProject')->name('project-update');
+    Route::post('project/update','ModulesPeopleController@updateProject')->name('project-update');
     Route::post('project-status/{id}/update','ModulesPeopleController@updateProjectStatus')->name('project-status-update');
     Route::post('project/department-assign/{id}','ModulesPeopleController@assignProjectToDepartment')->name('assign-project');
     Route::post('project/department-unassign/{id}','ModulesPeopleController@unassignProjectToDepartment')->name('unassign-project');

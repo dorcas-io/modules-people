@@ -867,14 +867,18 @@ class ModulesPeopleController extends Controller {
       $this->setViewUiResponse($request);
 
       $this->data['tasks'] =  $sdk->createTaskResource()->send('get',['all'])->getData();
+
+     
       $this->data['projects'] = $sdk->createProjectResource()->send('get',['all'])->getData();
-  
+
+    
       return view('modules-people::tasks.tasks', $this->data);
 
     }
 
     public function createTask(Request $request , Sdk $sdk)
     {
+
         
         $response =  $sdk->createTaskResource()
                             ->addBodyParam('task', $request->task)
@@ -886,7 +890,7 @@ class ModulesPeopleController extends Controller {
                             ->addBodyParam('end_date', $request->end_date)
                             ->send('post',['create']);
 
-
+        
         # make the request
         if (!$response->isSuccessful()) {
             // do something here
@@ -928,7 +932,7 @@ class ModulesPeopleController extends Controller {
     }
 
 
-    public function updateTask(Request $request, Sdk $sdk , $id){
+    public function updateTask(Request $request, Sdk $sdk){
 
             $response =  $sdk->createTaskResource()
                                     ->addBodyParam('task', $request->task)
@@ -938,7 +942,8 @@ class ModulesPeopleController extends Controller {
                                     ->addBodyParam('project', $request->project)
                                     ->addBodyParam('start_date',$request->start_date)
                                     ->addBodyParam('end_date',$request->end_date)
-                                    ->send('post',['update',$id]);
+                                     ->addBodyParam('project_id',$request->project_id)
+                                    ->send('post',['update',$request->project_id]);
 
             # make the request
             if (!$response->isSuccessful()) {
@@ -1069,16 +1074,16 @@ class ModulesPeopleController extends Controller {
         $this->setViewUiResponse($request);
   
         $this->data['projects'] =  $sdk->createProjectResource()->send('get',['all'])->getData();
-    
-      
-    
+
+
         return view('modules-people::projects.projects', $this->data);
   
       }
   
       public function createProject(Request $request , Sdk $sdk)
       {
-          
+
+
           $response =  $sdk->createProjectResource()
                               ->addBodyParam('project', $request->project)
                               ->addBodyParam('project_description', $request->project_description)
@@ -1087,6 +1092,7 @@ class ModulesPeopleController extends Controller {
                               ->addBodyParam('start_date', $request->start_date)
                               ->addBodyParam('end_date', $request->end_date)
                               ->send('post',['create']);
+
   
   
           # make the request
@@ -1113,7 +1119,7 @@ class ModulesPeopleController extends Controller {
   
       public function Project(Request $request, Sdk $sdk , $id)
       {
-          
+
           $response =  $sdk->createProjectResource()->send('get',[$id]);
   
           # make the request
@@ -1130,17 +1136,17 @@ class ModulesPeopleController extends Controller {
       }
   
   
-      public function updateProject(Request $request, Sdk $sdk , $id){
-  
+      public function updateProject(Request $request, Sdk $sdk){
+
               $response =  $sdk->createProjectResource()
                                       ->addBodyParam('project', $request->project)
-                                      ->addBodyParam('task_description',$request->project_description)
+                                      ->addBodyParam('project_description',$request->project_description)
                                       ->addBodyParam('priority', $request->priority)
                                       ->addBodyParam('status', $request->status)
                                       ->addBodyParam('start_date',$request->start_date)
                                       ->addBodyParam('end_date',$request->end_date)
-                                      ->send('post',['update',$id]);
-  
+                                      ->send('post',['update',$request->project_id]);
+
               # make the request
               if (!$response->isSuccessful()) {
                   // do something here
@@ -1149,8 +1155,14 @@ class ModulesPeopleController extends Controller {
               }
           
               $this->data = $response->getData();
-      
+
+          if($request->expectsJson()){
               return response()->json($this->data);
+          }
+
+          $response = (tabler_ui_html_response(['Successfully updated  project.']))->setType(UiResponse::TYPE_SUCCESS);
+
+          return back()->with('UiResponse', $response);
       }
   
       public function updateProjectStatus(Request $request, Sdk $sdk , $id){

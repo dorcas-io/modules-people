@@ -53,12 +53,13 @@
           
        },
        created() {
-         this.tasks.forEach((task , index)=> {
-            task.employees.data.map((employee , index)  => {
-              this.employeeCount = task.employees.data.length
-              this.employees.push(employee.email)
-            })
-         })
+console.log(this.tasks)
+         //   this.tasks.forEach((task , index)=> {
+         //    task.employees.data.map((employee , index)  => {
+         //      this.employeeCount = task.employees.data.length
+         //      this.employees.push(employee.email)
+         //    })
+         // })
         },
        methods: {
            createTask :function () {

@@ -1065,7 +1065,6 @@ class ModulesPeopleController extends Controller {
      */
     public function projects(Request $request, Sdk $sdk){
 
-
         $this->data['page']['title'] .= ' &rsaquo; Projects';
         $this->data['header']['title'] = 'Projects';
         $this->data['selectedSubMenu'] = 'people-projects';
@@ -1074,6 +1073,7 @@ class ModulesPeopleController extends Controller {
         $this->setViewUiResponse($request);
   
         $this->data['projects'] =  $sdk->createProjectResource()->send('get',['all'])->getData();
+        $this->data['departments'] = $this->getDepartments($sdk);
 
 
         return view('modules-people::projects.projects', $this->data);
@@ -1089,6 +1089,7 @@ class ModulesPeopleController extends Controller {
                               ->addBodyParam('project_description', $request->project_description)
                               ->addBodyParam('priority', $request->priority)
                               ->addBodyParam('status', $request->status)
+                             ->addBodyParam('department_id', $request->department_id)
                               ->addBodyParam('start_date', $request->start_date)
                               ->addBodyParam('end_date', $request->end_date)
                               ->send('post',['create']);
@@ -1121,6 +1122,7 @@ class ModulesPeopleController extends Controller {
       {
 
           $response =  $sdk->createProjectResource()->send('get',[$id]);
+
   
           # make the request
           if (!$response->isSuccessful()) {
@@ -1186,9 +1188,11 @@ class ModulesPeopleController extends Controller {
   
       public function viewProject(Request $request, Sdk $sdk , $project_id)
       {
-        
+
           $response =  $sdk->createProjectResource()->send('get',[$project_id]);
-  
+
+
+
           # make the request
           if (!$response->isSuccessful()) {
               // do something here
@@ -1198,8 +1202,11 @@ class ModulesPeopleController extends Controller {
   
           // dd($this->data );
           $this->data['project'] = $response->getData();;
+
+
           
           $this->data['departments'] = $sdk->createDepartmentResource()->send('get')->getData();
+
     
   
           return view('modules-people::projects.project', $this->data);
@@ -1209,12 +1216,14 @@ class ModulesPeopleController extends Controller {
 
       public function assignProjectToDepartment(Request $request, Sdk $sdk , $project_id)
       {
-          
+
             $response =  $sdk->createProjectResource()
                              ->addBodyParam('department_id', $request->department_id)
-                             ->send('post',['assign/department',$project_id]);
+                             ->send('post',['assign_department',$project_id]);
 
-                            
+
+
+
 
               # make the request
           if (!$response->isSuccessful()) {
@@ -1234,7 +1243,7 @@ class ModulesPeopleController extends Controller {
           
             $response =  $sdk->createProjectResource()
                              ->addBodyParam('department_id', $request->department_id)
-                             ->send('post',['un-assign/department',$project_id]);
+                             ->send('post',['un-assign_department',$project_id]);
 
                             
 

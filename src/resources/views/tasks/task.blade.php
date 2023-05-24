@@ -218,7 +218,7 @@
                 // },
                 removeEmployee: function (e) {
                     let attrs = app.utilities.getElementAttributes(e.target);
-                    console.log(attrs);
+                    // console.log(attrs);
                     let index = attrs['data-index'] || null;
                     let employee = typeof this.task.employees.data[index] !== 'undefined' ? this.task.employees.data[index] : null;
                     if (employee === null) {

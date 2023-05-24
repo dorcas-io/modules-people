@@ -14,9 +14,11 @@
               <input class="form-control" id="department_name" type="text" name="name" maxlength="80" v-model="department.name">
             </div>
             <div class="form-group">
-              <label class="form-label" for="description">Description (Optional)</label><!-- v-bind:class="{'active': department.description.length > 0}"-->
-              <textarea class="form-control" id="description" name="description" v-model="department.description"></textarea>
+              <label class="form-label" for="description">Description</label><!-- v-bind:class="{'active': department.description.length > 0}"-->
+              <textarea class="form-control" id="description" name="description" v-model="department.description" required></textarea>
             </div>
+
+
           </fieldset>
           <input type="hidden" name="department_id" id="department_id" v-model="department.id" v-if="showDepartmentId" />
         </form>

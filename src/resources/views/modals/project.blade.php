@@ -40,6 +40,18 @@
                 <option value="backlog">BackLog</option>
               </select>
             </div> --}}
+
+               <div class="form-group">
+                   <label class="form-label" for="department">Department</label>
+                   <select id="department"  class="form-control" name="department_id">
+                       <option disabled>Select Department</option>
+                       @foreach($departments as $index => $department)
+                         <option value="{{ $department->id }}" >
+                           {{ $department->name }}
+                         </option>
+                       @endforeach
+                   </select>
+               </div>
             <div class="form-group">
               <label class="form-label" for="description">Start date</label>
               <input class="form-control" id="task_name" type="date" name="start_date" v-model="project.start_date">

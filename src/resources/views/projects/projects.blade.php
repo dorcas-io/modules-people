@@ -52,7 +52,7 @@
           
        },
        created() {
-         console.log(this.projects ,'here')
+         // console.log(this.projects ,'here')
          // this.tasks.forEach((task , index)=> {
          //    task.employees.data.map((employee , index)  => {
          //      this.employeeCount = task.employees.data.length

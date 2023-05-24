@@ -54,8 +54,8 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
 
 
 Route::group(['middleware' => ['auth'], 'namespace' => 'Businesses', 'prefix' => 'xapps/people'], function () {
-    Route::get('/', 'Business@index')->name('business');
 
+    Route::get('/', 'Business@index')->name('business');
     Route::get('/departments', 'Departments\Departments@index')->name('business.departments');
     Route::get('/departments/new', 'Departments\Departments@index')->name('business.departments.new');
 

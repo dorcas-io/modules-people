@@ -37,6 +37,9 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     Route::post('task/{id}/remove_employee','ModulesPeopleController@removeTaskToEmployee')->name('task-remove');
     Route::get('task/{id}/task_employee','ModulesPeopleController@allTaskEmployee')->name('task-employee');
     Route::get('people-tasks/{task_id}','ModulesPeopleController@viewTask')->name('task-view');
+    Route::delete('people-task/{task_id}','ModulesPeopleController@deleteTask')->name('task-delete');
+
+
 
 
     Route::get('people-projects','ModulesPeopleController@projects')->name('people-projects');
@@ -49,6 +52,7 @@ Route::group(['namespace' => 'Dorcas\ModulesPeople\Http\Controllers', 'middlewar
     // Route::post('task/{id}/remove_employee','ModulesPeopleController@removeTaskToEmployee')->name('task-remove');
     // Route::get('task/{id}/task_employee','ModulesPeopleController@allTaskEmployee')->name('task-employee');
     Route::get('people-projects/{project_id}','ModulesPeopleController@viewProject')->name('project-view');
+    Route::delete('people-project/{project_id}','ModulesPeopleController@deleteProject')->name('project-delete');
     
 });
 

@@ -12,9 +12,10 @@
 
         <div class="container" id="listing_tasks">
             <div class="row mt-3" v-show="tasks.length > 0">
-                <task-card class="s12 m4" v-for="(task, index) in tasks" 
-                :key="task.id" :task="task" :index="index" 
-                :employeeCount="employeeCount" :employees="employees"
+                <task-card class="s12 m4" v-for="(task, index) in tasks"
+                :key="task.id" :task="task" :index="index"
+{{--                :employeeCount="employeeCount" --}}
+                           :employees="employees"
                 v-on:edit-task="editTask" v-on:delete-task="deleteTask"
                 ></task-card>
                
@@ -53,7 +54,8 @@
           
        },
        created() {
-console.log(this.tasks)
+
+
          //   this.tasks.forEach((task , index)=> {
          //    task.employees.data.map((employee , index)  => {
          //      this.employeeCount = task.employees.data.length
@@ -63,13 +65,13 @@ console.log(this.tasks)
         },
        methods: {
            createTask :function () {
-            console.log('ehheeh')
                // this.task = {name: '', description: ''};
                $('#manage-task-modal').modal('show');
            },
            editTask: function (index) {
-                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
-                    if (tasks === null) {
+
+                    let task = typeof this.data.tasks[index] !== 'undefined' ? this.data.tasks[index] : null;
+                    if (task === null) {
                         return;
                     }
                     this.task = task;
@@ -81,25 +83,27 @@ console.log(this.tasks)
                     if (task === null) {
                         return;
                     }
+
                     ///team.is_default = team.is_default ? 1 : 0;
+
                     this.task = task;
-                    let e_count = typeof task.counts.employees !== 'undefined' ? task.counts.employees : 0;
+                    let e_count = typeof task.employees.data.length !== 'undefined' ? task.employees.data.length : 0;
+
                     let context = this;
-                    if (e_count<1) {
+                    if (e_count < 1) {
                         Swal.fire({
                             title: "Are you sure?",
-                            text: "You are about to delete team " + context.task.name,
+                            text: "You are about to delete task " + context.task.name,
                             type: "warning",
                             showCancelButton: true,
                             confirmButtonColor: "#DD6B55",
                             confirmButtonText: "Yes, delete it!",
                             showLoaderOnConfirm: true,
                             preConfirm: (teams_delete) => {
-                            return axios.delete("/mpe/people-tasks/" + context.task.id)
+                            return axios.delete("/mpe/people-task/" + task.id)
                                 .then(function (response) {
-                                    //console.log(response);
-                                    context.task.splice(index, 1);
-                                    return swal("Deleted!", "The team was successfully deleted.", "success");
+                                    context.tasks.splice(index, 1);
+                                    return swal("Deleted!", "The task was successfully deleted.", "success");
                                 })
                                 .catch(function (error) {
                                     var message = '';
@@ -128,7 +132,7 @@ console.log(this.tasks)
                     } else {
                         Swal.fire({
                             title: "Unable to Delete!",
-                            text: "The team \"" + task.task + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
+                            text: "The task \"" + task.name + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
                             type: "error"
                         })
                     }

@@ -14,7 +14,7 @@
             <div class="row mt-3" v-show="projects.length > 0">
                 <project-card class="s12 m4" v-for="(project, index) in projects"
                 :key="project.id" :project="project" :index="index"
-                 v-on:edit-project="editProject" v-on:delete-task="deleteProject"
+                 v-on:edit-project="editProject" v-on:delete-project="deleteProject"
                 ></project-card>
 
             </div>
@@ -75,29 +75,30 @@
                     $('#manage-update-project-modal').modal('show');
             },
             deleteProject: function (index) {
-                    let tasks = typeof this.tasks !== 'undefined' ? this.tasks : null;
-                    let task = typeof this.tasks[index] !== 'undefined' ? this.tasks[index] : null;
-                    if (task === null) {
+                    let projects = typeof this.projects !== 'undefined' ? this.projects : null;
+                    let project = typeof this.projects[index] !== 'undefined' ? this.projects[index] : null;
+                    if (project === null) {
                         return;
                     }
                     ///team.is_default = team.is_default ? 1 : 0;
-                    this.task = task;
-                    let e_count = typeof task.counts.employees !== 'undefined' ? task.counts.employees : 0;
+
+                    this.project = project;
+                    let e_count = typeof project.department.length  !== 'undefined' ? project.department.length : 0;
                     let context = this;
                     if (e_count<1) {
                         Swal.fire({
                             title: "Are you sure?",
-                            text: "You are about to delete team " + context.task.name,
+                            text: "You are about to delete project " + context.project.name,
                             type: "warning",
                             showCancelButton: true,
                             confirmButtonColor: "#DD6B55",
                             confirmButtonText: "Yes, delete it!",
                             showLoaderOnConfirm: true,
                             preConfirm: (teams_delete) => {
-                            return axios.delete("/mpe/people-tasks/" + context.task.id)
+                            return axios.delete("/mpe/people-project/" + project.id)
                                 .then(function (response) {
                                     //console.log(response);
-                                    context.task.splice(index, 1);
+                                    context.projects.splice(index, 1);
                                     return swal("Deleted!", "The team was successfully deleted.", "success");
                                 })
                                 .catch(function (error) {
@@ -127,7 +128,7 @@
                     } else {
                         Swal.fire({
                             title: "Unable to Delete!",
-                            text: "The team \"" + task.task + "\" has " + e_count + " employee(s). Remove them first and the retry deleting.",
+                            text: "The Project  \"" + project.name + "\" has " + e_count + " department(s). Remove them first and the retry deleting.",
                             type: "error"
                         })
                     }

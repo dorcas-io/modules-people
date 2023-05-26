@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Exceptions\DeletingFailedException;
 use App\Exceptions\RecordNotFoundException;
+use Illuminate\Validation\Rule;
 use League\Csv\Reader;
 
 class ModulesPeopleController extends Controller {
@@ -934,6 +935,18 @@ class ModulesPeopleController extends Controller {
 
     public function updateTask(Request $request, Sdk $sdk){
 
+        $this->validate($request,[
+            'task' => 'required|string|max:80',
+            'task_description' => 'required|string',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'project_id' => 'required|integer',
+            'priority' => [
+                'required',
+                Rule::in(['high', 'medium', 'low'])
+            ],
+        ]);
+
             $response =  $sdk->createTaskResource()
                                     ->addBodyParam('task', $request->task)
                                     ->addBodyParam('task_description',$request->task_description)
@@ -1055,6 +1068,31 @@ class ModulesPeopleController extends Controller {
     }
 
 
+    public function deleteTask(Request $request, Sdk $sdk , $task_id){
+        $response =  $sdk->createTaskResource()->send('post',[$task_id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while deleting task record.';
+            throw new \RuntimeException($message);
+        }
+
+        // dd($this->data );
+        $this->data['task'] = $response->getData();;
+        $this->data['employees'] = $sdk->createEmployeeResource()->send('get')->getData();
+
+
+
+        return view('modules-people::tasks.task', $this->data);
+    }
+
+
+
+
+
+
+
 
           /**
      * @param Request $request
@@ -1082,6 +1120,18 @@ class ModulesPeopleController extends Controller {
   
       public function createProject(Request $request , Sdk $sdk)
       {
+
+          $this->validate($request,[
+              'project' => 'required|string|max:80',
+              'project_description' => 'required|string',
+              'start_date' => 'required',
+              'end_date' => 'required',
+              'department_id' => 'required|integer',
+              'priority' => [
+                  'required',
+                  Rule::in(['high', 'medium', 'low'])
+              ],
+          ]);
 
 
           $response =  $sdk->createProjectResource()
@@ -1140,14 +1190,30 @@ class ModulesPeopleController extends Controller {
   
       public function updateProject(Request $request, Sdk $sdk){
 
-              $response =  $sdk->createProjectResource()
-                                      ->addBodyParam('project', $request->project)
-                                      ->addBodyParam('project_description',$request->project_description)
-                                      ->addBodyParam('priority', $request->priority)
-                                      ->addBodyParam('status', $request->status)
-                                      ->addBodyParam('start_date',$request->start_date)
-                                      ->addBodyParam('end_date',$request->end_date)
-                                      ->send('post',['update',$request->project_id]);
+          $this->validate($request,[
+              'project' => 'required|string|max:80',
+              'project_description' => 'required|string',
+              'start_date' => 'required',
+              'end_date' => 'required',
+              'priority' => [
+                  'required',
+                  Rule::in(['high', 'medium', 'low'])
+              ],
+//              'project_status' => [
+//                  'required',
+//                  Rule::in(['in-progress', 'completed', 'overdue','backlog])
+//              ],
+
+          ]);
+
+          $response =  $sdk->createProjectResource()
+                                  ->addBodyParam('project', $request->project)
+                                  ->addBodyParam('project_description',$request->project_description)
+                                  ->addBodyParam('priority', $request->priority)
+                                  ->addBodyParam('status', $request->status)
+                                  ->addBodyParam('start_date',$request->start_date)
+                                  ->addBodyParam('end_date',$request->end_date)
+                                  ->send('post',['update',$request->project_id]);
 
               # make the request
               if (!$response->isSuccessful()) {
@@ -1222,9 +1288,6 @@ class ModulesPeopleController extends Controller {
                              ->send('post',['assign_department',$project_id]);
 
 
-
-
-
               # make the request
           if (!$response->isSuccessful()) {
             // do something here
@@ -1259,7 +1322,27 @@ class ModulesPeopleController extends Controller {
             return response()->json($this->data);
                             
       }
-  
+
+
+    public function deleteProject(Request $request, Sdk $sdk , $project_id){
+
+        $response =  $sdk->createProjectResource()->send('post',[$project_id]);
+
+        # make the request
+        if (!$response->isSuccessful()) {
+            // do something here
+            $message = $response->errors[0]['title'] ?? 'Failed while deleting task record.';
+            throw new \RuntimeException($message);
+        }
+
+        $this->data['project'] = $response->getData();;
+
+
+        return response()->json($this->data);
+
+    }
+
+
 
 
 }

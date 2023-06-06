@@ -940,7 +940,7 @@ class ModulesPeopleController extends Controller {
             'task_description' => 'required|string',
             'start_date' => 'required',
             'end_date' => 'required',
-            'project_id' => 'required|integer',
+            'project_id' => 'required',
             'priority' => [
                 'required',
                 Rule::in(['high', 'medium', 'low'])
@@ -1121,12 +1121,13 @@ class ModulesPeopleController extends Controller {
       public function createProject(Request $request , Sdk $sdk)
       {
 
+
           $this->validate($request,[
               'project' => 'required|string|max:80',
               'project_description' => 'required|string',
               'start_date' => 'required',
               'end_date' => 'required',
-              'department_id' => 'required|integer',
+              'department_id' => 'required',
               'priority' => [
                   'required',
                   Rule::in(['high', 'medium', 'low'])

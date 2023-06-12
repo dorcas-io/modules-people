@@ -22,7 +22,7 @@
               <select  class="form-control" name="project">
                  <option disabled>Select Project</option>
                   @foreach($projects as $index => $project)
-                    <option value="{{ $project['id'] }}" >
+                    <option value="{{ $project['_id'] }}" >
                       {{ $project['name'] }}
                     </option>
                   @endforeach

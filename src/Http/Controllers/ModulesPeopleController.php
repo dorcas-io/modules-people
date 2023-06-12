@@ -410,12 +410,16 @@ class ModulesPeopleController extends Controller {
         }
         $query = $query->send('POST');
         # send request
+
+
         if (!$query->isSuccessful()) {
             $message = $query->getErrors()[0]['title'] ?? 'Failed while trying to add the employee.';
             throw new \RuntimeException($message);
         }
         $company = $request->user()->company(true, true);
         Cache::forget('business.employees.'.$company->id);
+
+
         return response()->json($query->getData());
     }
 
@@ -450,7 +454,7 @@ class ModulesPeopleController extends Controller {
             //$resource->addBodyParam('account', $request->input('account'));
             $resource->addBodyParam('entries', $entries);
             $response = $resource->send('post', ['bulk']);
-            //dd($response);
+//            dd($response);
             # send the request
             if (!$response->isSuccessful()) {
                 # it failed
@@ -567,8 +571,10 @@ class ModulesPeopleController extends Controller {
         $this->data['departments'] = $this->getDepartments($sdk);
         $this->data['teams'] = $this->getTeams($sdk);
         $this->data['employee'] = $employee = $this->getEmployee($sdk, $id);
+
         //dd($employee);
         if (!empty($employee->user) && !empty($employee->user['data'])) {
+
             $configurations = (array) $employee->user['data']['extra_configurations'];
             $currentUiSetup = $configurations['ui_setup'] ?? [];
             $this->data['setupUiFields'] = collect(HomeController::SETUP_UI_COMPONENTS)->map(function ($field) use ($currentUiSetup) {
@@ -871,6 +877,7 @@ class ModulesPeopleController extends Controller {
 
      
       $this->data['projects'] = $sdk->createProjectResource()->send('get',['all'])->getData();
+//      dd(    $this->data['projects']);
 
     
       return view('modules-people::tasks.tasks', $this->data);
@@ -1058,7 +1065,9 @@ class ModulesPeopleController extends Controller {
         }
 
         // dd($this->data );
-        $this->data['task'] = $response->getData();;
+        $this->data['task'] = $response->getData();
+//        dd( $this->data['task'] );
+
         $this->data['employees'] = $sdk->createEmployeeResource()->send('get')->getData();
   
 
@@ -1183,6 +1192,8 @@ class ModulesPeopleController extends Controller {
           }
   
           $this->data = $response;
+
+
           
   
           return response()->json($this->data);
@@ -1268,7 +1279,8 @@ class ModulesPeopleController extends Controller {
           }
   
           // dd($this->data );
-          $this->data['project'] = $response->getData();;
+          $this->data['project'] = $response->getData();
+//          dd(  $this->data['project']);
 
 
           
